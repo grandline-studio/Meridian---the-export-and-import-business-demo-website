@@ -1,9 +1,8 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import land from '../data/land.json'
 import { origin, destinations } from '../config'
-import { range, smooth, lerp, clamp } from '../lib/motion'
+import { range, smooth, lerp, clamp, lowPower } from '../lib/motion'
 
 const DEG = Math.PI / 180
 export function ll2v(lat, lng, r = 1) {
@@ -18,14 +17,25 @@ const FACE_Y = -Math.atan2(ORIGIN_V.x, ORIGIN_V.z)
 const FACE_X = origin.lat * DEG
 
 /* ---------- land dots ---------- */
+// fetched (in parallel with the JS) rather than bundled: ~140 KB less script to parse
+const landPromise = fetch('/land.json').then((r) => r.json())
+
 function LandDots() {
+  const [land, setLand] = useState(null)
+  useEffect(() => {
+    landPromise.then(setLand).catch(() => {})
+  }, [])
   const geo = useMemo(() => {
-    const n = land.length / 2
+    if (!land) return null
+    // phones draw every other dot (~5.5k instead of ~11k)
+    const step = lowPower ? 2 : 1
+    const n = Math.floor(land.length / 2 / step)
     const pos = new Float32Array(n * 3)
     const rand = new Float32Array(n)
     const hot = new Float32Array(n)
     for (let i = 0; i < n; i++) {
-      const v = ll2v(land[i * 2], land[i * 2 + 1], 1.0)
+      const k = i * step
+      const v = ll2v(land[k * 2], land[k * 2 + 1], 1.0)
       pos.set([v.x, v.y, v.z], i * 3)
       rand[i] = Math.random()
       hot[i] = clamp(1 - v.distanceTo(ORIGIN_V) / 0.32) ** 1.4 // India glows
@@ -35,7 +45,7 @@ function LandDots() {
     g.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
     g.setAttribute('aHot', new THREE.BufferAttribute(hot, 1))
     return g
-  }, [])
+  }, [land])
 
   const mat = useMemo(
     () =>
@@ -44,7 +54,7 @@ function LandDots() {
         depthWrite: false,
         uniforms: {
           uTime: { value: 0 },
-          uSize: { value: 15.0 },
+          uSize: { value: lowPower ? 18.0 : 15.0 },
           uPR: { value: Math.min(window.devicePixelRatio, 2) },
           uCol: { value: new THREE.Color('#8fa3c7') },
           uHot: { value: new THREE.Color('#ff7a3a') },
@@ -82,7 +92,7 @@ function LandDots() {
     mat.uniforms.uTime.value = s.clock.elapsedTime
     mat.uniforms.uScan.value = ((s.clock.elapsedTime * 0.35) % 3.5) - 1.5
   })
-  return <points geometry={geo} material={mat} />
+  return geo ? <points geometry={geo} material={mat} /> : null
 }
 
 /* ---------- body + atmosphere ---------- */
@@ -109,7 +119,7 @@ function Body() {
   return (
     <>
       <mesh material={core}>
-        <sphereGeometry args={[0.992, 96, 96]} />
+        <sphereGeometry args={[0.992, lowPower ? 48 : 96, lowPower ? 48 : 96]} />
       </mesh>
       <mesh scale={1.2} material={atmo}>
         <sphereGeometry args={[1, 64, 64]} />
@@ -153,7 +163,7 @@ function Routes({ progress, labels }) {
           color,
           speed: 0.16 + (i % 4) * 0.035,
           offset: Math.random(),
-          geo: new THREE.TubeGeometry(curve, 128, 0.0045, 8, false),
+          geo: new THREE.TubeGeometry(curve, lowPower ? 64 : 128, 0.0045, lowPower ? 5 : 8, false),
           mat: new THREE.ShaderMaterial({
             transparent: true,
             depthWrite: false,
@@ -202,7 +212,10 @@ function Routes({ progress, labels }) {
         ring.material.opacity = (1 - pulse) * 0.8 * draw
       }
       const el = labels?.current?.[i]
-      if (el) {
+      // labels are hidden for most of the scroll — skip the projection + DOM writes then
+      if (el && labelVis <= 0.001) {
+        if (el.style.opacity !== '0') el.style.opacity = '0'
+      } else if (el) {
         root.current.localToWorld(tmp.copy(arc.end).multiplyScalar(1.01))
         const facing = tmp.clone().sub(center).normalize().dot(camDir)
         const o = labelVis * clamp((facing - 0.3) * 3)
@@ -270,7 +283,7 @@ function OriginBeacon() {
 function Stars() {
   const ref = useRef()
   const geo = useMemo(() => {
-    const n = 1400
+    const n = lowPower ? 500 : 1400
     const p = new Float32Array(n * 3)
     for (let i = 0; i < n; i++) {
       const v = new THREE.Vector3().randomDirection().multiplyScalar(6 + Math.random() * 14)

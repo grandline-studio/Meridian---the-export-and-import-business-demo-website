@@ -17,5 +17,5 @@ for (let i = 0; i < N; i++) {
   if (lat < -60) continue // skip Antarctica
   if (geoContains(land, [lng, lat])) pts.push(+lat.toFixed(2), +lng.toFixed(2))
 }
-writeFileSync(new URL('../src/data/land.json', import.meta.url), JSON.stringify(pts))
+writeFileSync(new URL('../public/land.json', import.meta.url), JSON.stringify(pts))
 console.log('land points', pts.length / 2)

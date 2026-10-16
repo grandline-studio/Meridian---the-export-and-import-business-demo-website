@@ -22,8 +22,11 @@ function FlipCard({ p, i }) {
           <div className="absolute inset-0 overflow-hidden">
             <img
               src={img(p.photo, 900)}
+              srcSet={`${img(p.photo, 640)} 640w, ${img(p.photo, 900)} 900w`}
+              sizes="(max-width: 640px) 80vw, 380px"
               alt={p.name}
               loading="lazy"
+              decoding="async"
               className="product-img absolute inset-y-0 -left-[15%] h-full w-[130%] max-w-none object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
             />
           </div>

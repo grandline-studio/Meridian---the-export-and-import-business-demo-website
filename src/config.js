@@ -122,5 +122,7 @@ export const clocks = [
   { city: 'Singapore', tz: 'Asia/Singapore' },
 ]
 
-export const ctaVideo = 'https://videos.pexels.com/video-files/2943126/2943126-hd_1280_720_24fps.mp4'
-export const ctaPoster = img('photo-1724597500306-a4cbb7d1324e', 1600)
+export const ctaVideo = 'https://videos.pexels.com/video-files/2943126/2943126-hd_1280_720_24fps.mp4' // ~9.9 MB
+export const ctaVideoMobile = 'https://videos.pexels.com/video-files/2943126/2943126-sd_640_360_24fps.mp4' // ~2.1 MB
+export const ctaPoster = img('photo-1724597500306-a4cbb7d1324e', 1400)
+export const ctaPosterMobile = img('photo-1724597500306-a4cbb7d1324e', 700)

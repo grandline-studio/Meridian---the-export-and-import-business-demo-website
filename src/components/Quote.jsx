@@ -1,8 +1,8 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useGSAP } from '@gsap/react'
-import { gsap } from '../lib/motion'
-import { ctaVideo, ctaPoster, products, destinations, brand } from '../config'
+import { gsap, isMobile } from '../lib/motion'
+import { ctaVideo, ctaVideoMobile, ctaPoster, ctaPosterMobile, products, destinations, brand } from '../config'
 
 const loads = [
   { id: 'lcl', label: 'LCL', sub: 'Shared container', cbm: '< 15 CBM' },
@@ -15,12 +15,31 @@ const field = 'w-full rounded-xl border border-white/10 bg-ink/60 px-4 py-3 text
 
 export default function Quote() {
   const section = useRef()
+  const video = useRef()
+  const [nearVideo, setNearVideo] = useState(false)
   const [step, setStep] = useState(0)
   const [sent, setSent] = useState(false)
   const [f, setF] = useState({ mode: 'export', product: products[0].name, dest: 'Rotterdam', load: '20', name: '', email: '', company: '' })
   const set = (k) => (v) => setF((s) => ({ ...s, [k]: v?.target ? v.target.value : v }))
   const dest = destinations.find((d) => d.name === f.dest)
   const transit = useMemo(() => (f.load === 'air' ? '2–4 days' : `${dest?.days ?? 20}–${(dest?.days ?? 20) + 4} days`), [f.load, dest])
+
+  // don't download the video (or its poster) until the section is about a screen away; pause it off-screen
+  useEffect(() => {
+    const near = new IntersectionObserver(([e]) => e.isIntersecting && setNearVideo(true), { rootMargin: '100% 0px' })
+    const onScreen = new IntersectionObserver(([e]) => {
+      const v = video.current
+      if (!v) return
+      if (e.isIntersecting) v.play().catch(() => {})
+      else v.pause()
+    })
+    near.observe(section.current)
+    onScreen.observe(section.current)
+    return () => {
+      near.disconnect()
+      onScreen.disconnect()
+    }
+  }, [])
 
   useGSAP(
     () => {
@@ -36,7 +55,16 @@ export default function Quote() {
     <section ref={section} id="quote" className="relative overflow-hidden">
       {/* video band */}
       <div className="relative flex h-[70svh] min-h-[480px] items-end overflow-hidden px-5 pb-14 md:px-12 md:pb-20">
-        <video className="cta-video absolute inset-0 h-full w-full object-cover" src={ctaVideo} poster={ctaPoster} autoPlay muted loop playsInline preload="metadata" />
+        <video
+          ref={video}
+          className="cta-video absolute inset-0 h-full w-full bg-ink-2 object-cover"
+          src={nearVideo ? (isMobile ? ctaVideoMobile : ctaVideo) : undefined}
+          poster={nearVideo ? (isMobile ? ctaPosterMobile : ctaPoster) : undefined}
+          muted
+          loop
+          playsInline
+          preload="none"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70" />
         <h2 className="relative text-[clamp(3rem,10vw,10rem)] font-medium leading-[0.88] tracking-[-0.05em]">
           <span className="block overflow-hidden pb-[0.06em]">

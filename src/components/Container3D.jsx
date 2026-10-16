@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
-import { range, smooth, lerp, easeInOut } from '../lib/motion'
+import { range, smooth, lerp, easeInOut, lowPower } from '../lib/motion'
 import { brand } from '../config'
 
 const L = 6.1
@@ -258,6 +258,26 @@ function ContainerModel({ progress }) {
   )
 }
 
+function SoftShadow() {
+  const tex = useMemo(() => {
+    const c = document.createElement('canvas')
+    c.width = c.height = 128
+    const x = c.getContext('2d')
+    const g = x.createRadialGradient(64, 64, 0, 64, 64, 64)
+    g.addColorStop(0, 'rgba(0,0,0,0.75)')
+    g.addColorStop(1, 'rgba(0,0,0,0)')
+    x.fillStyle = g
+    x.fillRect(0, 0, 128, 128)
+    return new THREE.CanvasTexture(c)
+  }, [])
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.4, -H / 2 - 0.02, 0.4]} scale={[13, 7, 1]}>
+      <planeGeometry />
+      <meshBasicMaterial map={tex} transparent depthWrite={false} />
+    </mesh>
+  )
+}
+
 export default function ContainerScene({ progress }) {
   return (
     <>
@@ -266,13 +286,18 @@ export default function ContainerScene({ progress }) {
       <ambientLight intensity={0.25} />
       <directionalLight position={[6, 9, 6]} intensity={2.2} color="#ffe2c4" castShadow shadow-mapSize={[1024, 1024]} />
       <directionalLight position={[-8, 3, -6]} intensity={1.4} color="#4f7cff" />
-      <Environment resolution={128}>
+      <Environment resolution={lowPower ? 32 : 128}>
         <Lightformer intensity={2} position={[0, 5, -5]} scale={[10, 3, 1]} color="#ffffff" />
         <Lightformer intensity={1.5} position={[-6, 1, 3]} scale={[4, 6, 1]} color="#7aa2ff" />
         <Lightformer intensity={2} position={[6, 2, 4]} scale={[4, 4, 1]} color="#ffb070" />
       </Environment>
       <ContainerModel progress={progress} />
-      <ContactShadows position={[0, -H / 2 - 0.02, 0]} opacity={0.65} scale={22} blur={2.6} far={4} color="#000000" />
+      {/* contact shadows re-render every frame; phones get a static blob instead */}
+      {lowPower ? (
+        <SoftShadow />
+      ) : (
+        <ContactShadows position={[0, -H / 2 - 0.02, 0]} opacity={0.65} scale={22} blur={2.6} far={4} resolution={512} color="#000000" />
+      )}
       <gridHelper args={[60, 60, '#1b2233', '#121827']} position={[0, -H / 2 - 0.03, 0]} />
     </>
   )

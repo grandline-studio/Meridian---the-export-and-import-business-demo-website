@@ -1,9 +1,11 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useGSAP } from '@gsap/react'
-import ContainerScene from './Container3D'
-import { ScrollTrigger } from '../lib/motion'
+import { ScrollTrigger, lowPower } from '../lib/motion'
 import Kicker from './ui/Kicker'
+
+// split out (with drei) so it only downloads when the section is close
+const ContainerScene = lazy(() => import('./Container3D'))
 
 const steps = [
   { t: 'Sealed at source', d: 'Bolt seal and GPS e-lock fitted at the factory gate. The seal number travels with your documents.' },
@@ -26,13 +28,33 @@ export default function ContainerSection() {
   const section = useRef()
   const progress = useRef(0)
   const [visible, setVisible] = useState(false)
+  const [near, setNear] = useState(false)
   const [p, setP] = useState(0)
 
   useEffect(() => {
+    // mount the WebGL scene ~1.5 screens ahead, render frames only while on screen
+    const nearIO = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '150% 0px' })
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { rootMargin: '200px' })
+    nearIO.observe(section.current)
     io.observe(section.current)
-    return () => io.disconnect()
+    return () => {
+      nearIO.disconnect()
+      io.disconnect()
+    }
   }, [])
+
+  // keep the canvas out of the per-scroll re-render
+  const canvas = useMemo(
+    () =>
+      near && (
+        <Canvas shadows={!lowPower} dpr={lowPower ? [1, 1.25] : [1, 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ fov: 30, position: [0, 3, 12] }} gl={{ antialias: !lowPower, powerPreference: 'high-performance' }}>
+          <Suspense fallback={null}>
+            <ContainerScene progress={progress} />
+          </Suspense>
+        </Canvas>
+      ),
+    [near, visible]
+  )
 
   useGSAP(() => {
     const st = ScrollTrigger.create({
@@ -41,7 +63,8 @@ export default function ContainerSection() {
       end: 'bottom bottom',
       onUpdate: (self) => {
         progress.current = self.progress
-        setP(Math.round(self.progress * 100) / 100)
+        const r = Math.round(self.progress * 50) / 50
+        setP((v) => (v === r ? v : r))
       },
     })
     return () => st.kill()
@@ -53,11 +76,7 @@ export default function ContainerSection() {
     <section ref={section} id="container" className="relative h-[340vh]">
       <div className="sticky top-0 h-svh overflow-hidden">
         <div className="absolute inset-0">
-          <Canvas shadows dpr={[1, 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ fov: 30, position: [0, 3, 12] }} gl={{ antialias: true }}>
-            <Suspense fallback={null}>
-              <ContainerScene progress={progress} />
-            </Suspense>
-          </Canvas>
+          {canvas}
         </div>
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(6,8,15,0.92)_0%,rgba(6,8,15,0.5)_35%,transparent_60%)] max-md:bg-[linear-gradient(180deg,rgba(6,8,15,0.95)_0%,rgba(6,8,15,0.6)_40%,transparent_65%)]" />
 
@@ -84,7 +103,7 @@ export default function ContainerSection() {
         </div>
 
         {/* telemetry HUD */}
-        <div className="absolute bottom-5 right-4 w-[min(320px,calc(100%-2rem))] rounded-2xl border border-white/10 bg-ink/60 p-4 font-mono text-[11px] backdrop-blur-xl md:bottom-10 md:right-10">
+        <div className="absolute bottom-5 right-4 w-[min(320px,calc(100%-2rem))] rounded-2xl border border-white/10 bg-ink/85 p-4 font-mono text-[11px] md:bottom-10 md:bg-ink/60 md:backdrop-blur-xl md:right-10">
           <div className="mb-3 flex items-center justify-between uppercase tracking-[0.18em] text-mute">
             <span className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sea" /> Live telemetry

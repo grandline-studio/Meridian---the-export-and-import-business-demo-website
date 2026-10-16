@@ -37,6 +37,7 @@ body {
 /* film grain overlay */
 .grain::after {
   content: "";
+  /* desktop only — a full-screen animated layer is costly on phones */
   position: fixed;
   inset: -50%;
   pointer-events: none;
@@ -88,4 +89,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .grain::after, .marquee-track { animation: none; }
+}
+@media (max-width: 767px), (pointer: coarse) {
+  .grain::after { display: none; }
 }

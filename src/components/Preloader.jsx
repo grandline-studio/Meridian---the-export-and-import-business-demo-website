@@ -9,22 +9,23 @@ export default function Preloader({ onDone }) {
   const [gone, setGone] = useState(false)
 
   useEffect(() => {
+    document.getElementById('boot')?.remove()
     const o = { v: 0 }
     const ctx = gsap.context(() => {
       gsap
         .timeline({ onComplete: () => setGone(true) })
         .to(o, {
           v: 100,
-          duration: 2.1,
+          duration: 1.1,
           ease: 'power2.inOut',
           onUpdate: () => {
             if (num.current) num.current.textContent = String(Math.round(o.v)).padStart(3, '0')
           },
         })
-        .to('.pl-bar', { scaleX: 1, duration: 2.1, ease: 'power2.inOut' }, 0)
-        .to('.pl-inner', { yPercent: -30, autoAlpha: 0, duration: 0.7, ease: 'power3.in' }, '+=0.1')
+        .to('.pl-bar', { scaleX: 1, duration: 1.1, ease: 'power2.inOut' }, 0)
+        .to('.pl-inner', { yPercent: -30, autoAlpha: 0, duration: 0.5, ease: 'power3.in' })
         .add(() => onDone?.(), '-=0.15')
-        .to('.pl-shutter', { scaleY: 0, duration: 1, ease: 'expo.inOut', stagger: 0.06, transformOrigin: 'top' }, '-=0.3')
+        .to('.pl-shutter', { scaleY: 0, duration: 0.8, ease: 'expo.inOut', stagger: 0.05, transformOrigin: 'top' }, '-=0.3')
     }, root)
     return () => ctx.revert()
   }, [onDone])

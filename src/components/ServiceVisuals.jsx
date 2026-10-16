@@ -8,7 +8,7 @@ export function SeaVisual({ active }) {
   const [eta, setEta] = useState(22 * 24 * 60)
   useEffect(() => {
     if (!active) return
-    const id = setInterval(() => setEta((e) => (e <= 0 ? 22 * 24 * 60 : e - 37)), 60)
+    const id = setInterval(() => setEta((e) => (e <= 0 ? 22 * 24 * 60 : e - 151)), 250)
     return () => clearInterval(id)
   }, [active])
   const d = Math.floor(eta / 1440)
@@ -172,7 +172,7 @@ export function SourcingVisual({ active }) {
             <div key={i} className={`relative h-12 w-12 overflow-hidden rounded-md border transition-colors duration-300 ${done ? (flag ? 'border-signal/70 bg-signal/10' : 'border-sea/60 bg-sea/10') : 'border-white/10 bg-white/[0.03]'}`}>
               <div className="absolute inset-2 rounded-sm bg-gradient-to-br from-white/15 to-white/0" />
               {done && <span className={`absolute bottom-0.5 right-1 font-mono text-[8px] ${flag ? 'text-signal' : 'text-sea'}`}>{flag ? 'RE' : 'OK'}</span>}
-              {scan === i + 1 && <motion.div layoutId="scanbox" className="absolute inset-0 rounded-md border-2 border-bone" />}
+              {scan === i + 1 && <div className="absolute inset-0 rounded-md border-2 border-bone" />}
             </div>
           )
         })}

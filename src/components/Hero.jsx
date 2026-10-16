@@ -2,7 +2,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useGSAP } from '@gsap/react'
 import GlobeScene from './Globe'
-import { gsap, ScrollTrigger, scrollToId } from '../lib/motion'
+import { gsap, ScrollTrigger, scrollToId, lowPower } from '../lib/motion'
 import { heroStats, destinations, origin, brand } from '../config'
 import Magnetic from './ui/Magnetic'
 
@@ -85,7 +85,7 @@ export default function Hero({ ready }) {
         {/* backdrop glow */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_45%,rgba(63,124,255,0.18),transparent_70%),radial-gradient(40%_40%_at_20%_80%,rgba(255,107,44,0.10),transparent_70%)]" />
         <div className="hero-canvas absolute inset-0">
-          <Canvas frameloop={visible ? 'always' : 'never'} dpr={[1, 2]} camera={{ fov: 40, position: [0, 0, 3.3], near: 0.1, far: 60 }} gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}>
+          <Canvas frameloop={visible ? 'always' : 'never'} dpr={lowPower ? [1, 1.5] : [1, 2]} camera={{ fov: 40, position: [0, 0, 3.3], near: 0.1, far: 60 }} gl={{ antialias: !lowPower, alpha: true, powerPreference: 'high-performance' }}>
             <Suspense fallback={null}>
               <GlobeScene progress={progress} labels={labels} />
             </Suspense>
@@ -95,7 +95,7 @@ export default function Hero({ ready }) {
         <div className="hero-canvas pointer-events-none absolute inset-0 overflow-hidden">
           {destinations.map((d, i) => (
             <div key={d.name} ref={(el) => (labels.current[i] = el)} className="absolute left-0 top-0 opacity-0 will-change-transform">
-              <div className="-translate-y-1/2 translate-x-3 whitespace-nowrap rounded-full border border-white/15 bg-ink/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-bone backdrop-blur-md">
+              <div className="-translate-y-1/2 translate-x-3 whitespace-nowrap rounded-full border border-white/15 bg-ink/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-bone">
                 {d.name} <span className="text-signal">· {d.days}d</span>
               </div>
             </div>
@@ -137,7 +137,7 @@ export default function Hero({ ready }) {
                 <span className="absolute inset-0 translate-y-full rounded-full bg-bone transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:translate-y-0" />
               </button>
             </Magnetic>
-            <button onClick={() => scrollToId('services')} className="rounded-full border border-white/15 px-6 py-4 text-sm text-bone backdrop-blur transition-colors hover:border-white/40 hover:bg-white/5">
+            <button onClick={() => scrollToId('services')} className="rounded-full border border-white/15 px-6 py-4 text-sm text-bone transition-colors md:backdrop-blur hover:border-white/40 hover:bg-white/5">
               Explore services
             </button>
           </div>
@@ -167,7 +167,7 @@ export default function Hero({ ready }) {
         <div className="hero-c invisible absolute inset-x-0 bottom-16 px-5 md:bottom-20 md:px-12" style={{ perspective: 900 }}>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {heroStats.map((s, i) => (
-              <div key={s.label} className="stat rounded-2xl border border-white/10 bg-ink/50 p-4 backdrop-blur-xl md:p-6">
+              <div key={s.label} className="stat rounded-2xl border border-white/10 bg-ink/80 p-4 md:bg-ink/50 md:p-6 md:backdrop-blur-xl">
                 <div className="flex items-baseline text-3xl font-medium tracking-tight md:text-5xl">
                   <span ref={(el) => (statRefs.current[i] = el)}>0</span>
                   <span className="text-signal">{s.suffix}</span>

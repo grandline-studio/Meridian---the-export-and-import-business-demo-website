@@ -64,7 +64,7 @@ export default function Nav() {
         transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
         className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:pt-4"
       >
-        <nav className={`flex w-full max-w-6xl items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-500 md:px-5 ${scrolled ? 'border-white/10 bg-ink/60 backdrop-blur-xl' : 'border-transparent'}`}>
+        <nav className={`flex w-full max-w-6xl items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-500 md:px-5 ${scrolled ? 'border-white/10 bg-ink/90 md:bg-ink/60 md:backdrop-blur-xl' : 'border-transparent'}`}>
           <button onClick={() => go('top')} aria-label="Home">
             <Logo />
           </button>

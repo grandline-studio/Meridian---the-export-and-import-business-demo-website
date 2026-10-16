@@ -9,6 +9,12 @@ export { gsap, ScrollTrigger }
 
 export const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 export const isTouch = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
+// phones / low-core devices get lighter 3D (lower pixel ratio, no shadows, fewer particles)
+export const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+export const lowPower = isMobile || (typeof navigator !== 'undefined' && (navigator.hardwareConcurrency || 8) <= 4)
+
+// mobile address-bar show/hide shouldn't trigger a full layout refresh
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 let lenis
 export function initSmoothScroll() {
