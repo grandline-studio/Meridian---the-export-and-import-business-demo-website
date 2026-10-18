@@ -13,10 +13,11 @@ export function ll2v(lat, lng, r = 1) {
 
 // glow tricks (additive light) vanish on a pale page, so light mode swaps blending + colours
 const PAL = {
-  dark: { land: '#8fa3c7', hot: '#ff7a3a', scan: '#8cd9ff', base: '#070b17', rim: '#2b4f8f', atmo: '#2f5fd0', atmoGain: 0.9, arcA: '#46d6c8', arcB: '#ff8a4a', ship: '#fff3e6', pin: '#ffffff', stars: true, additive: true },
-  light: { land: '#3d4a63', hot: '#e4561b', scan: '#1d4ed8', base: '#fbfaf7', rim: '#b9cbe6', atmo: '#7d9fd8', atmoGain: 0.38, arcA: '#0e9384', arcB: '#e4561b', ship: '#15171d', pin: '#15171d', stars: false, additive: false },
+  dark: { land: '#8fa3c7', hot: '#ff7a3a', scan: '#8cd9ff', base: '#070b17', rim: '#2b4f8f', atmo: '#2f5fd0', atmoGain: 0.78, arcA: '#46d6c8', arcB: '#ff8a4a', ship: '#fff3e6', pin: '#ffffff', stars: true, additive: true },
+  light: { land: '#3d4a63', hot: '#e4561b', scan: '#1d4ed8', base: '#fbfaf7', rim: '#b9cbe6', atmo: '#7d9fd8', atmoGain: 0.5, arcA: '#0e9384', arcB: '#e4561b', ship: 'route', pin: '#15171d', stars: false, additive: false },
 }
 
+const WHITE = new THREE.Color('#ffffff')
 const ORIGIN_V = ll2v(origin.lat, origin.lng)
 // rotation that brings the origin port to face the camera
 const FACE_Y = -Math.atan2(ORIGIN_V.x, ORIGIN_V.z)
@@ -109,6 +110,9 @@ function LandDots({ theme }) {
 }
 
 /* ---------- body + atmosphere ---------- */
+const ATMO_SCALE = 1.32
+// on the halo shell, the globe's own edge sits where cos(view, normal) = sqrt(1 - (1/scale)^2)
+const ATMO_RIM = Math.sqrt(1 - 1 / (ATMO_SCALE * ATMO_SCALE))
 function Body({ theme }) {
   const [core, atmo] = useMemo(
     () => [
@@ -122,9 +126,16 @@ function Body({ theme }) {
         depthWrite: false,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
-        vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-        uniforms: { uC: { value: new THREE.Color('#2f5fd0') }, uGain: { value: 0.9 }, uAdd: { value: 1 } },
-        fragmentShader: `uniform vec3 uC; uniform float uGain; uniform float uAdd; varying vec3 vN; void main(){ float i = pow(0.6 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(uC * mix(1.0, i * uGain, uAdd), clamp(i * uGain, 0.0, 1.0)); }`,
+        vertexShader: `varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }`,
+        uniforms: { uC: { value: new THREE.Color('#2f5fd0') }, uGain: { value: 0.9 }, uAdd: { value: 1 }, uRimAt: { value: ATMO_RIM } },
+        // t is 0 at the halo's outer silhouette and 1 where it meets the globe, measured against the real
+        // view ray (not a fixed +z), so the glow fades to nothing evenly on both sides of an off-centre globe
+        fragmentShader: `uniform vec3 uC; uniform float uGain; uniform float uAdd; uniform float uRimAt; varying vec3 vN; varying vec3 vV;
+          void main(){
+            float t = clamp(-dot(normalize(vN), normalize(vV)) / uRimAt, 0.0, 1.0);
+            float i = pow(t, 2.4) * uGain;
+            gl_FragColor = vec4(uC * mix(1.0, i, uAdd), clamp(i, 0.0, 1.0));
+          }`,
       }),
     ],
     []
@@ -144,7 +155,7 @@ function Body({ theme }) {
       <mesh material={core}>
         <sphereGeometry args={[0.992, lowPower ? 48 : 96, lowPower ? 48 : 96]} />
       </mesh>
-      <mesh scale={1.2} material={atmo}>
+      <mesh scale={ATMO_SCALE} material={atmo}>
         <sphereGeometry args={[1, 64, 64]} />
       </mesh>
     </>
@@ -208,7 +219,8 @@ function Routes({ progress, labels, theme }) {
       arc.color.set(i % 3 === 0 ? c.arcA : c.arcB)
       arc.mat.blending = c.additive ? THREE.AdditiveBlending : THREE.NormalBlending
       arc.mat.needsUpdate = true
-      ships.current[i]?.material.color.set(c.ship)
+      const ship = ships.current[i]?.material.color
+      if (ship) c.ship === 'route' ? ship.copy(arc.color).lerp(WHITE, 0.3) : ship.set(c.ship)
       pins.current[i]?.material.color.set(c.pin)
     })
   }, [theme, arcs])
