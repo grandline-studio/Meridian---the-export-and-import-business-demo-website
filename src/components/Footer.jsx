@@ -14,10 +14,10 @@ function Clock({ city, tz }) {
   const hour = +new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: 'numeric', hour12: false }).format(now)
   const open = hour >= 9 && hour < 19
   return (
-    <div className="border-t border-white/10 py-3">
+    <div className="border-t border-fg/10 py-3">
       <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
         {city}
-        <span className={`h-1.5 w-1.5 rounded-full ${open ? 'bg-sea' : 'bg-white/20'}`} title={open ? 'Desk open' : 'After hours'} />
+        <span className={`h-1.5 w-1.5 rounded-full ${open ? 'bg-sea' : 'bg-fg/20'}`} title={open ? 'Desk open' : 'After hours'} />
       </div>
       <div className="mt-1 font-mono text-lg tabular-nums">{time}</div>
     </div>
@@ -40,7 +40,7 @@ export default function Footer() {
   )
   const word = brand.name.toUpperCase()
   return (
-    <footer ref={ref} className="relative overflow-hidden border-t border-white/10 px-5 pt-20 md:px-12">
+    <footer ref={ref} className="relative overflow-hidden border-t border-fg/10 px-5 pt-20 md:px-12">
       <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-[1.2fr_1fr_1fr]">
         <div>
           <Logo />
@@ -90,7 +90,7 @@ export default function Footer() {
           </span>
         ))}
       </div>
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-white/10 py-6 font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-fg/10 py-6 font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
         <span>© {new Date().getFullYear()} {brand.name} {brand.suffix} Pvt. Ltd.</span>
         <span>IEC 0300000000 · GSTIN 27AAAAA0000A1Z5</span>
         <button onClick={() => scrollToId('top')} className="hover:text-bone">

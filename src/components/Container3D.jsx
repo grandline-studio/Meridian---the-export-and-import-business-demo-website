@@ -42,10 +42,10 @@ function labelTexture() {
   const x = c.getContext('2d')
   x.clearRect(0, 0, c.width, c.height)
   x.fillStyle = 'rgba(255,255,255,0.92)'
-  x.font = '700 210px Geist, Arial, sans-serif'
+  x.font = '700 210px Archivo, Arial, sans-serif'
   x.textBaseline = 'middle'
   x.fillText(brand.name.toUpperCase(), 60, 250)
-  x.font = '500 64px "Geist Mono", monospace'
+  x.font = '500 64px "IBM Plex Mono", monospace'
   x.fillStyle = 'rgba(255,255,255,0.7)'
   x.fillText(`${brand.suffix.toUpperCase()} · GLOBAL TRADE`, 70, 420)
   const t = new THREE.CanvasTexture(c)
@@ -59,10 +59,10 @@ function codeTexture() {
   c.height = 256
   const x = c.getContext('2d')
   x.fillStyle = 'rgba(255,255,255,0.85)'
-  x.font = '600 92px "Geist Mono", monospace'
+  x.font = '600 92px "IBM Plex Mono", monospace'
   x.textBaseline = 'middle'
   x.fillText('MRDU 482193 7', 20, 90)
-  x.font = '500 56px "Geist Mono", monospace'
+  x.font = '500 56px "IBM Plex Mono", monospace'
   x.fillStyle = 'rgba(255,255,255,0.6)'
   x.fillText('45G1   MAX 32,500 KG', 20, 190)
   const t = new THREE.CanvasTexture(c)
@@ -258,7 +258,7 @@ function ContainerModel({ progress }) {
   )
 }
 
-function SoftShadow() {
+function SoftShadow({ opacity = 1 }) {
   const tex = useMemo(() => {
     const c = document.createElement('canvas')
     c.width = c.height = 128
@@ -273,19 +273,25 @@ function SoftShadow() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.4, -H / 2 - 0.02, 0.4]} scale={[13, 7, 1]}>
       <planeGeometry />
-      <meshBasicMaterial map={tex} transparent depthWrite={false} />
+      <meshBasicMaterial map={tex} transparent opacity={opacity} depthWrite={false} />
     </mesh>
   )
 }
 
-export default function ContainerScene({ progress }) {
+const SCENE = {
+  dark: { bg: '#06080f', grid: ['#1b2233', '#121827'], ambient: 0.25, key: 2.2, rim: 1.4, rimColor: '#4f7cff', shadow: 0.65 },
+  light: { bg: '#f2efe8', grid: ['#d3cdbf', '#e2ddd2'], ambient: 0.9, key: 2.6, rim: 0.6, rimColor: '#9fb8ff', shadow: 0.32 },
+}
+
+export default function ContainerScene({ progress, theme = 'dark' }) {
+  const c = SCENE[theme]
   return (
     <>
-      <color attach="background" args={['#06080f']} />
-      <fog attach="fog" args={['#06080f', 20, 44]} />
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[6, 9, 6]} intensity={2.2} color="#ffe2c4" castShadow shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-8, 3, -6]} intensity={1.4} color="#4f7cff" />
+      <color attach="background" args={[c.bg]} />
+      <fog attach="fog" args={[c.bg, 20, 44]} />
+      <ambientLight intensity={c.ambient} />
+      <directionalLight position={[6, 9, 6]} intensity={c.key} color="#ffe2c4" castShadow shadow-mapSize={[1024, 1024]} />
+      <directionalLight position={[-8, 3, -6]} intensity={c.rim} color={c.rimColor} />
       <Environment resolution={lowPower ? 32 : 128}>
         <Lightformer intensity={2} position={[0, 5, -5]} scale={[10, 3, 1]} color="#ffffff" />
         <Lightformer intensity={1.5} position={[-6, 1, 3]} scale={[4, 6, 1]} color="#7aa2ff" />
@@ -294,11 +300,12 @@ export default function ContainerScene({ progress }) {
       <ContainerModel progress={progress} />
       {/* contact shadows re-render every frame; phones get a static blob instead */}
       {lowPower ? (
-        <SoftShadow />
+        <SoftShadow opacity={c.shadow / 0.65} />
       ) : (
-        <ContactShadows position={[0, -H / 2 - 0.02, 0]} opacity={0.65} scale={22} blur={2.6} far={4} resolution={512} color="#000000" />
+        <ContactShadows position={[0, -H / 2 - 0.02, 0]} opacity={c.shadow} scale={22} blur={2.6} far={4} resolution={512} color="#000000" />
       )}
-      <gridHelper args={[60, 60, '#1b2233', '#121827']} position={[0, -H / 2 - 0.03, 0]} />
+      {/* keyed so the grid rebuilds with the new colours */}
+      <gridHelper key={theme} args={[60, 60, c.grid[0], c.grid[1]]} position={[0, -H / 2 - 0.03, 0]} />
     </>
   )
 }

@@ -11,7 +11,7 @@ const loads = [
   { id: 'air', label: 'Air', sub: 'Express', cbm: 'By kg' },
 ]
 
-const field = 'w-full rounded-xl border border-white/10 bg-ink/60 px-4 py-3 text-sm text-bone outline-none transition-colors placeholder:text-mute/70 focus:border-signal/60'
+const field = 'w-full rounded-xl border border-fg/10 bg-ink/60 px-4 py-3 text-sm text-bone outline-none transition-colors placeholder:text-mute/70 focus:border-signal/60'
 
 export default function Quote() {
   const section = useRef()
@@ -79,14 +79,14 @@ export default function Quote() {
       <div className="relative px-4 pb-28 md:px-10 md:pb-36">
         <div className="mx-auto -mt-6 grid max-w-6xl gap-4 md:grid-cols-[1.4fr_1fr]">
           {/* form */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-ink-2 p-6 md:p-9">
+          <div className="relative overflow-hidden rounded-3xl border border-fg/10 bg-ink-2 p-6 md:p-9">
             <div className="flex items-center justify-between">
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
                 Landed-cost quote · Step <span className="text-bone">{Math.min(step + 1, 3)}</span>/3
               </div>
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
-                  <span key={i} className={`h-1 w-8 rounded-full transition-colors duration-500 ${i <= step ? 'bg-signal' : 'bg-white/10'}`} />
+                  <span key={i} className={`h-1 w-8 rounded-full transition-colors duration-500 ${i <= step ? 'bg-signal' : 'bg-fg/10'}`} />
                 ))}
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function Quote() {
                   </motion.div>
                   <h3 className="mt-8 text-3xl font-medium tracking-tight">Thanks{f.name ? `, ${f.name.split(' ')[0]}` : ''}.</h3>
                   <p className="mt-3 max-w-sm text-mute">A trade desk executive will send your landed-cost breakdown for {f.product.toLowerCase()} to {f.dest} within 24 hours.</p>
-                  <button onClick={() => { setSent(false); setStep(0) }} className="mt-8 rounded-full border border-white/15 px-5 py-2.5 text-sm hover:bg-white/5">
+                  <button onClick={() => { setSent(false); setStep(0) }} className="mt-8 rounded-full border border-fg/15 px-5 py-2.5 text-sm hover:bg-fg/5">
                     Start another quote
                   </button>
                 </motion.div>
@@ -121,7 +121,7 @@ export default function Quote() {
                   {step === 0 && (
                     <>
                       <h3 className="text-2xl font-medium tracking-tight md:text-3xl">What are you moving?</h3>
-                      <div className="mt-6 inline-flex rounded-full border border-white/10 p-1">
+                      <div className="mt-6 inline-flex rounded-full border border-fg/10 p-1">
                         {['export', 'import'].map((m) => (
                           <button type="button" key={m} onClick={() => set('mode')(m)} className="relative rounded-full px-6 py-2 text-sm capitalize">
                             {f.mode === m && <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-full bg-bone" transition={{ type: 'spring', stiffness: 400, damping: 30 }} />}
@@ -131,7 +131,7 @@ export default function Quote() {
                       </div>
                       <div className="mt-6 flex flex-wrap gap-2">
                         {products.map((p) => (
-                          <button type="button" key={p.name} onClick={() => set('product')(p.name)} className={`rounded-full border px-4 py-2 text-sm transition-all ${f.product === p.name ? 'border-signal bg-signal/10 text-bone' : 'border-white/10 text-mute hover:border-white/30'}`}>
+                          <button type="button" key={p.name} onClick={() => set('product')(p.name)} className={`rounded-full border px-4 py-2 text-sm transition-all ${f.product === p.name ? 'border-signal bg-signal/10 text-bone' : 'border-fg/10 text-mute hover:border-fg/30'}`}>
                             {p.name}
                           </button>
                         ))}
@@ -153,7 +153,7 @@ export default function Quote() {
                       </label>
                       <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
                         {loads.map((l) => (
-                          <button type="button" key={l.id} onClick={() => set('load')(l.id)} className={`rounded-2xl border p-4 text-left transition-all ${f.load === l.id ? 'border-signal bg-signal/10' : 'border-white/10 hover:border-white/30'}`}>
+                          <button type="button" key={l.id} onClick={() => set('load')(l.id)} className={`rounded-2xl border p-4 text-left transition-all ${f.load === l.id ? 'border-signal bg-signal/10' : 'border-fg/10 hover:border-fg/30'}`}>
                             <div className="text-lg font-medium">{l.label}</div>
                             <div className="mt-1 text-xs text-mute">{l.sub}</div>
                             <div className="mt-3 font-mono text-[10px] uppercase tracking-widest text-signal">{l.cbm}</div>
@@ -177,9 +177,9 @@ export default function Quote() {
                     <button type="button" onClick={() => setStep(Math.max(0, step - 1))} className={`text-sm text-mute transition-opacity hover:text-bone ${step === 0 ? 'pointer-events-none opacity-0' : ''}`}>
                       ← Back
                     </button>
-                    <button disabled={!canNext} className="group relative overflow-hidden rounded-full bg-signal px-7 py-3.5 text-sm font-medium text-ink transition-opacity disabled:opacity-40">
+                    <button disabled={!canNext} className="group relative overflow-hidden rounded-full bg-signal px-7 py-3.5 text-sm font-medium text-night transition-opacity disabled:opacity-40">
                       <span className="relative z-10">{step < 2 ? 'Continue →' : 'Request quote'}</span>
-                      <span className="absolute inset-0 translate-y-full bg-bone transition-transform duration-500 group-hover:translate-y-0" />
+                      <span className="absolute inset-0 translate-y-full bg-signal-2 transition-transform duration-500 group-hover:translate-y-0" />
                     </button>
                   </div>
                 </motion.form>
@@ -189,7 +189,7 @@ export default function Quote() {
 
           {/* live summary */}
           <div className="flex flex-col gap-4">
-            <div className="beam-border rounded-3xl border border-white/10 bg-ink-2 p-6 md:p-7">
+            <div className="beam-border rounded-3xl border border-fg/10 bg-ink-2 p-6 md:p-7">
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Your shipment</div>
               <div className="mt-5 flex items-center justify-between gap-3">
                 <div>
@@ -208,7 +208,7 @@ export default function Quote() {
                   </AnimatePresence>
                 </div>
               </div>
-              <dl className="mt-6 space-y-2.5 border-t border-white/10 pt-5 text-sm">
+              <dl className="mt-6 space-y-2.5 border-t border-fg/10 pt-5 text-sm">
                 {[
                   ['Cargo', f.product],
                   ['Load', loads.find((l) => l.id === f.load)?.label],
@@ -222,12 +222,12 @@ export default function Quote() {
                 ))}
               </dl>
             </div>
-            <a href={`https://wa.me/${brand.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="group flex items-center justify-between rounded-3xl border border-white/10 bg-ink-2 p-6 transition-colors hover:border-[#25D366]/50">
+            <a href={`https://wa.me/${brand.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="group flex items-center justify-between rounded-3xl border border-fg/10 bg-ink-2 p-6 transition-colors hover:border-[#25D366]/50">
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Prefer to chat?</div>
                 <div className="mt-1 text-lg font-medium">WhatsApp the trade desk</div>
               </div>
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-ink transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-night transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110">
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
                   <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.4z" />
                 </svg>

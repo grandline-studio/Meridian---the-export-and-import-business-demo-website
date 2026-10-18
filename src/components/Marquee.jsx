@@ -21,7 +21,7 @@ function Row({ items, reverse, speed = 40, accent }) {
 
 export default function Marquee() {
   return (
-    <section aria-label="Certifications and ports" className="relative -mt-[1px] space-y-4 border-y border-white/10 bg-ink py-10">
+    <section aria-label="Certifications and ports" className="relative -mt-[1px] space-y-4 border-y border-fg/10 bg-ink py-10">
       <Row items={certifications} speed={45} accent="bg-signal" />
       <Row items={destinations.map((d) => `${d.name}`)} reverse speed={55} accent="bg-sea" />
     </section>

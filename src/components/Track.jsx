@@ -39,7 +39,7 @@ export default function Track() {
             <span className="serif-i text-mute"> Always.</span>
           </h2>
           <p className="mt-6 max-w-md leading-relaxed text-mute">Every client gets a live dashboard: vessel position, document status, temperature logs and ETA alerts on WhatsApp. Try the demo container below.</p>
-          <form onSubmit={submit} className="mt-8 flex max-w-md items-center gap-2 rounded-full border border-white/15 bg-ink-2 p-1.5 pl-5 focus-within:border-signal/60">
+          <form onSubmit={submit} className="mt-8 flex max-w-md items-center gap-2 rounded-full border border-fg/15 bg-ink-2 p-1.5 pl-5 focus-within:border-signal/60">
             <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-mute" fill="none">
               <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
               <path d="M14 14l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -51,16 +51,16 @@ export default function Track() {
               className="min-w-0 flex-1 bg-transparent font-mono text-sm tracking-wider text-bone outline-none placeholder:text-mute"
               placeholder="Container / B/L number"
             />
-            <button className="rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-bone">Track</button>
+            <button className="rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-night transition-colors hover:bg-signal-2">Track</button>
           </form>
           <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Demo data · real dashboards update every 15 min</div>
         </div>
 
-        <div className="relative min-h-[520px] rounded-3xl border border-white/10 bg-ink-2 p-5 md:p-8">
+        <div className="relative min-h-[520px] rounded-3xl border border-fg/10 bg-ink-2 p-5 md:p-8">
           <AnimatePresence mode="wait">
             {state === 'idle' && (
               <motion.div key="idle" exit={{ opacity: 0, y: -10 }} className="flex h-full min-h-[460px] flex-col items-center justify-center text-center">
-                <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-ink-3">
+                <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} className="flex h-20 w-20 items-center justify-center rounded-2xl border border-fg/10 bg-ink-3">
                   <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none">
                     <rect x="5" y="11" width="30" height="18" rx="1.5" stroke="#ff6b2c" strokeWidth="1.5" />
                     {[11, 16, 21, 26, 31].map((x) => (
@@ -76,7 +76,7 @@ export default function Track() {
             {state === 'loading' && (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-14 animate-pulse rounded-xl bg-white/[0.04]" style={{ animationDelay: `${i * 80}ms` }} />
+                  <div key={i} className="h-14 animate-pulse rounded-xl bg-fg/[0.04]" style={{ animationDelay: `${i * 80}ms` }} />
                 ))}
               </motion.div>
             )}
@@ -97,7 +97,7 @@ export default function Track() {
                     <span>Nhava Sheva</span>
                     <span>Rotterdam</span>
                   </div>
-                  <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
+                  <div className="relative mt-3 h-1.5 rounded-full bg-fg/10">
                     <motion.div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-signal to-signal-2" initial={{ width: 0 }} animate={{ width: '64%' }} transition={{ duration: 1.6, ease: [0.2, 0.8, 0.2, 1] }} />
                     <motion.div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" initial={{ left: 0 }} animate={{ left: '64%' }} transition={{ duration: 1.6, ease: [0.2, 0.8, 0.2, 1] }}>
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bone shadow-[0_0_0_6px_rgba(255,107,44,0.25)]">
@@ -113,7 +113,7 @@ export default function Track() {
                       ['Speed', '17.4 kn'],
                       ['ETA', '29 Oct'],
                     ].map(([k, v], i) => (
-                      <motion.div key={k} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.4 + i * 0.08 } }} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                      <motion.div key={k} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.4 + i * 0.08 } }} className="rounded-xl border border-fg/5 bg-fg/[0.02] p-3">
                         <div className="font-mono text-[9px] uppercase tracking-widest text-mute">{k}</div>
                         <div className="mt-1 text-lg font-medium">{v}</div>
                       </motion.div>
@@ -125,10 +125,10 @@ export default function Track() {
                   {events.map((e, i) => (
                     <motion.li key={e.t} initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0, transition: { delay: 0.6 + i * 0.09 } }} className="relative flex gap-4 pb-4 last:pb-0">
                       <div className="relative flex flex-col items-center">
-                        <span className={`relative z-10 mt-1 h-3 w-3 rounded-full border-2 ${e.done ? 'border-signal bg-signal' : 'border-white/25 bg-ink-2'}`}>
+                        <span className={`relative z-10 mt-1 h-3 w-3 rounded-full border-2 ${e.done ? 'border-signal bg-signal' : 'border-fg/25 bg-ink-2'}`}>
                           {e.live && <span className="absolute -inset-1.5 animate-ping rounded-full bg-signal/50" />}
                         </span>
-                        {i < events.length - 1 && <span className={`absolute top-4 h-full w-px ${e.done && events[i + 1].done ? 'bg-signal/60' : 'bg-white/10'}`} />}
+                        {i < events.length - 1 && <span className={`absolute top-4 h-full w-px ${e.done && events[i + 1].done ? 'bg-signal/60' : 'bg-fg/10'}`} />}
                       </div>
                       <div className="flex flex-1 flex-wrap justify-between gap-x-4 text-sm">
                         <div>

@@ -49,29 +49,29 @@ export default function Journey() {
         <div className="mt-14 grid gap-10 md:mt-20 md:grid-cols-2 md:gap-16">
           {/* sticky map */}
           <div className="sticky top-16 z-10 h-[42svh] md:top-0 md:h-svh md:py-[12vh]">
-            <div className="relative h-full overflow-hidden rounded-3xl border border-white/10 bg-ink-2/90 backdrop-blur">
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.09)_1px,transparent_1px)] bg-[size:14px_14px]" />
+            <div className="relative h-full overflow-hidden rounded-3xl border border-fg/10 bg-ink-2/90 backdrop-blur">
+              <div className="absolute inset-0 bg-[radial-gradient(color-mix(in_oklab,var(--fg)_10%,transparent)_1px,transparent_1px)] bg-[size:14px_14px]" />
               <svg viewBox="40 0 480 440" className="relative h-full w-full" preserveAspectRatio="xMidYMid meet">
-                <path d={ROUTE} stroke="rgba(255,255,255,0.12)" strokeWidth="2" strokeDasharray="3 7" fill="none" />
+                <path d={ROUTE} stroke="var(--fg)" strokeOpacity=".14" strokeWidth="2" strokeDasharray="3 7" fill="none" />
                 <path id="route-path" d={ROUTE} stroke="url(#rg)" strokeWidth="3" fill="none" strokeLinecap="round" />
                 <defs>
                   <linearGradient id="rg" x1="1" y1="1" x2="0" y2="0">
-                    <stop offset="0" stopColor="#ffb547" />
-                    <stop offset="1" stopColor="#ff6b2c" />
+                    <stop offset="0" stopColor="var(--signal-2)" />
+                    <stop offset="1" stopColor="var(--signal)" />
                   </linearGradient>
                 </defs>
                 {STOPS.map((s, i) => (
                   <g key={s.l}>
-                    <circle cx={s.x} cy={s.y} r={active >= i ? 7 : 4} fill={active >= i ? '#ff6b2c' : '#1b2233'} stroke={active >= i ? '#ffb547' : 'rgba(255,255,255,0.3)'} style={{ transition: 'all .5s' }} />
-                    {active === i && <circle cx={s.x} cy={s.y} r="16" fill="none" stroke="#ff6b2c" strokeOpacity=".5" className="origin-center animate-ping" style={{ transformBox: 'fill-box' }} />}
-                    <text x={s.x + 14} y={s.y + 4} fontSize="12" fontFamily="Geist Mono, monospace" fill={active >= i ? '#ece8df' : '#5b6275'} style={{ transition: 'fill .5s' }}>
+                    <circle cx={s.x} cy={s.y} r={active >= i ? 7 : 4} fill={active >= i ? 'var(--signal)' : 'var(--ink-3)'} stroke={active >= i ? 'var(--signal-2)' : 'var(--mute)'} style={{ transition: 'all .5s' }} />
+                    {active === i && <circle cx={s.x} cy={s.y} r="16" fill="none" stroke="var(--signal)" strokeOpacity=".5" className="origin-center animate-ping" style={{ transformBox: 'fill-box' }} />}
+                    <text x={s.x + 14} y={s.y + 4} fontSize="12" fontFamily="IBM Plex Mono, monospace" fill={active >= i ? 'var(--bone)' : 'var(--mute)'} style={{ transition: 'fill .5s' }}>
                       {s.l}
                     </text>
                   </g>
                 ))}
                 <g id="route-ship">
-                  <circle r="14" fill="#ff6b2c" opacity=".18" />
-                  <path d="M-9 -4 L7 -4 L10 0 L7 4 L-9 4 Z" fill="#ece8df" />
+                  <circle r="14" fill="var(--signal)" opacity=".18" />
+                  <path d="M-9 -4 L7 -4 L10 0 L7 4 L-9 4 Z" fill="var(--bone)" />
                   <rect x="-6" y="-2" width="4" height="4" fill="#ff6b2c" />
                   <rect x="-1" y="-2" width="4" height="4" fill="#46d6c8" />
                 </g>
@@ -81,7 +81,7 @@ export default function Journey() {
               </div>
               <div className="absolute bottom-5 left-5 right-5 flex gap-1">
                 {journey.map((_, i) => (
-                  <span key={i} className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i <= active ? 'bg-signal' : 'bg-white/10'}`} />
+                  <span key={i} className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i <= active ? 'bg-signal' : 'bg-fg/10'}`} />
                 ))}
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function Journey() {
           {/* steps */}
           <div className="journey-steps md:py-[20vh]">
             {journey.map((j, i) => (
-              <div key={j.code} className={`journey-step flex min-h-[45vh] flex-col justify-center border-t border-white/10 py-10 transition-opacity duration-500 md:min-h-[60vh] ${active === i ? 'opacity-100' : 'opacity-30'}`}>
+              <div key={j.code} className={`journey-step flex min-h-[45vh] flex-col justify-center border-t border-fg/10 py-10 transition-opacity duration-500 md:min-h-[60vh] ${active === i ? 'opacity-100' : 'opacity-30'}`}>
                 <div className="font-mono text-sm text-signal">{j.code}</div>
                 <h3 className="mt-3 text-3xl font-medium tracking-tight md:text-5xl">{j.title}</h3>
                 <p className="mt-4 max-w-md leading-relaxed text-mute">{j.text}</p>

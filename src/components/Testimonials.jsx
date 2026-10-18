@@ -50,7 +50,7 @@ export default function Testimonials() {
             </div>
           </div>
           <div className="mt-10 flex gap-2">
-            <button onClick={() => next(-1)} aria-label="Previous" className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/5">
+            <button onClick={() => next(-1)} aria-label="Previous" className="flex h-12 w-12 items-center justify-center rounded-full border border-fg/15 transition-colors hover:bg-fg/5">
               ←
             </button>
             <button onClick={() => next(1)} aria-label="Next" className="flex h-12 w-12 items-center justify-center rounded-full bg-bone text-ink transition-colors hover:bg-signal">
@@ -68,7 +68,7 @@ export default function Testimonials() {
                 <motion.figure
                   key={idx}
                   custom={dir}
-                  className={`absolute inset-0 flex cursor-grab flex-col justify-between rounded-3xl border border-white/10 p-7 active:cursor-grabbing md:p-9 ${top ? 'bg-ink-3' : 'bg-ink-2'}`}
+                  className={`absolute inset-0 flex cursor-grab flex-col justify-between rounded-3xl border border-fg/10 p-7 active:cursor-grabbing md:p-9 ${top ? 'bg-ink-3' : 'bg-ink-2'}`}
                   style={{ zIndex: 10 - pos, transformOrigin: 'bottom center' }}
                   initial={{ scale: 0.85, y: 60, opacity: 0 }}
                   animate={{ scale: 1 - pos * 0.06, y: pos * -26, opacity: 1 - pos * 0.3, rotate: pos === 0 ? 0 : pos % 2 ? -2.5 : 2.5 }}
@@ -88,8 +88,8 @@ export default function Testimonials() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">{t.country}</span>
                   </div>
                   <blockquote className="text-xl leading-snug tracking-tight md:text-2xl">{t.quote}</blockquote>
-                  <figcaption className="flex items-center gap-4 border-t border-white/10 pt-5">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-signal to-signal-2 text-sm font-semibold text-ink">{initials(t.name)}</span>
+                  <figcaption className="flex items-center gap-4 border-t border-fg/10 pt-5">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-signal to-signal-2 text-sm font-semibold text-night">{initials(t.name)}</span>
                     <div>
                       <div className="font-medium">{t.name}</div>
                       <div className="text-sm text-mute">

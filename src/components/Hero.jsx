@@ -5,6 +5,7 @@ import GlobeScene from './Globe'
 import { gsap, ScrollTrigger, scrollToId, lowPower } from '../lib/motion'
 import { heroStats, destinations, origin, brand } from '../config'
 import Magnetic from './ui/Magnetic'
+import { useTheme } from '../lib/theme'
 
 const lines = [
   [{ t: 'We move' }, { t: "India's finest" }],
@@ -18,6 +19,7 @@ export default function Hero({ ready }) {
   const barRef = useRef()
   const pctRef = useRef()
   const labels = useRef([])
+  const { theme } = useTheme()
   const [visible, setVisible] = useState(true)
 
   // stop rendering the globe once the hero is off-screen
@@ -87,7 +89,7 @@ export default function Hero({ ready }) {
         <div className="hero-canvas absolute inset-0">
           <Canvas frameloop={visible ? 'always' : 'never'} dpr={lowPower ? [1, 1.5] : [1, 2]} camera={{ fov: 40, position: [0, 0, 3.3], near: 0.1, far: 60 }} gl={{ antialias: !lowPower, alpha: true, powerPreference: 'high-performance' }}>
             <Suspense fallback={null}>
-              <GlobeScene progress={progress} labels={labels} />
+              <GlobeScene progress={progress} labels={labels} theme={theme} />
             </Suspense>
           </Canvas>
         </div>
@@ -95,14 +97,14 @@ export default function Hero({ ready }) {
         <div className="hero-canvas pointer-events-none absolute inset-0 overflow-hidden">
           {destinations.map((d, i) => (
             <div key={d.name} ref={(el) => (labels.current[i] = el)} className="absolute left-0 top-0 opacity-0 will-change-transform">
-              <div className="-translate-y-1/2 translate-x-3 whitespace-nowrap rounded-full border border-white/15 bg-ink/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-bone">
+              <div className="-translate-y-1/2 translate-x-3 whitespace-nowrap rounded-full border border-fg/15 bg-ink/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-bone">
                 {d.name} <span className="text-signal">· {d.days}d</span>
               </div>
             </div>
           ))}
         </div>
         {/* readability scrim */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(6,8,15,0.85)_0%,rgba(6,8,15,0.35)_45%,transparent_70%)] max-md:bg-[linear-gradient(180deg,rgba(6,8,15,0.9)_0%,rgba(6,8,15,0.4)_45%,transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--ink)_88%,transparent)_0%,color-mix(in_oklab,var(--ink)_40%,transparent)_45%,transparent_70%)] max-md:bg-[linear-gradient(180deg,color-mix(in_oklab,var(--ink)_90%,transparent)_0%,color-mix(in_oklab,var(--ink)_40%,transparent)_45%,transparent_70%)]" />
 
         {/* Phase A — headline */}
         <div className="hero-a absolute inset-0 flex flex-col justify-start px-5 pt-28 md:justify-center md:px-12 md:pt-0">
@@ -129,15 +131,15 @@ export default function Hero({ ready }) {
           </p>
           <div className="hero-fade mt-9 flex flex-wrap items-center gap-3">
             <Magnetic>
-              <button onClick={() => scrollToId('quote')} className="group relative overflow-hidden rounded-full bg-signal px-7 py-4 text-sm font-medium text-ink">
+              <button onClick={() => scrollToId('quote')} className="group relative overflow-hidden rounded-full bg-signal px-7 py-4 text-sm font-medium text-night">
                 <span className="relative z-10 flex items-center gap-2">
                   Get a landed-cost quote
                   <svg className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
                 </span>
-                <span className="absolute inset-0 translate-y-full rounded-full bg-bone transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:translate-y-0" />
+                <span className="absolute inset-0 translate-y-full rounded-full bg-signal-2 transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:translate-y-0" />
               </button>
             </Magnetic>
-            <button onClick={() => scrollToId('services')} className="rounded-full border border-white/15 px-6 py-4 text-sm text-bone transition-colors md:backdrop-blur hover:border-white/40 hover:bg-white/5">
+            <button onClick={() => scrollToId('services')} className="rounded-full border border-fg/15 px-6 py-4 text-sm text-bone transition-colors md:backdrop-blur hover:border-fg/40 hover:bg-fg/5">
               Explore services
             </button>
           </div>
@@ -153,7 +155,7 @@ export default function Hero({ ready }) {
           </h2>
           <div className="mt-8 hidden space-y-1.5 md:block">
             {destinations.slice(0, 7).map((d) => (
-              <div key={d.name} className="route-row flex items-center justify-between gap-6 border-b border-white/5 py-1.5 font-mono text-xs text-mute">
+              <div key={d.name} className="route-row flex items-center justify-between gap-6 border-b border-fg/5 py-1.5 font-mono text-xs text-mute">
                 <span>
                   {brand.originPort.split(' ')[0]} <span className="text-signal">→</span> <span className="text-bone">{d.name}</span>
                 </span>
@@ -167,7 +169,7 @@ export default function Hero({ ready }) {
         <div className="hero-c invisible absolute inset-x-0 bottom-16 px-5 md:bottom-20 md:px-12" style={{ perspective: 900 }}>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {heroStats.map((s, i) => (
-              <div key={s.label} className="stat rounded-2xl border border-white/10 bg-ink/80 p-4 md:bg-ink/50 md:p-6 md:backdrop-blur-xl">
+              <div key={s.label} className="stat rounded-2xl border border-fg/10 bg-ink/80 p-4 md:bg-ink/50 md:p-6 md:backdrop-blur-xl">
                 <div className="flex items-baseline text-3xl font-medium tracking-tight md:text-5xl">
                   <span ref={(el) => (statRefs.current[i] = el)}>0</span>
                   <span className="text-signal">{s.suffix}</span>
@@ -187,14 +189,14 @@ export default function Hero({ ready }) {
           </div>
           <div className="flex items-center gap-3">
             <span>Voyage</span>
-            <span className="relative h-px w-24 bg-white/15 md:w-40">
+            <span className="relative h-px w-24 bg-fg/15 md:w-40">
               <span ref={barRef} className="absolute inset-0 origin-left scale-x-0 bg-signal" />
             </span>
             <span ref={pctRef} className="text-bone">000</span>
           </div>
           <div className="flex items-center gap-2">
             Scroll
-            <span className="relative block h-7 w-[18px] rounded-full border border-white/25">
+            <span className="relative block h-7 w-[18px] rounded-full border border-fg/25">
               <span className="absolute left-1/2 top-1.5 h-1.5 w-[2px] -translate-x-1/2 animate-[float-y_1.6s_ease-in-out_infinite] rounded bg-signal" />
             </span>
           </div>

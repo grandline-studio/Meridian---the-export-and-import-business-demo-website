@@ -25,13 +25,13 @@ function ServiceCard({ s, index, onOpen }) {
         <motion.button
           layoutId={`card-${s.id}`}
           onClick={() => onOpen(s)}
-          className="beam-border group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-ink-2 text-left [--beam-opacity:0] hover:[--beam-opacity:1]"
+          className="beam-border group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-fg/[0.07] bg-ink-2 text-left [--beam-opacity:0] hover:[--beam-opacity:1]"
           data-cursor="Open"
         >
           <div className="relative min-h-0 flex-1 [transform:translateZ(30px)]">
             <Visual active={inView} />
           </div>
-          <div className="relative flex items-end justify-between gap-4 border-t border-white/[0.06] p-5 md:p-6">
+          <div className="relative flex items-end justify-between gap-4 border-t border-fg/[0.06] p-5 md:p-6">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">{s.kicker}</div>
               <motion.h3 layoutId={`title-${s.id}`} className="mt-2 text-2xl font-medium tracking-tight">
@@ -39,7 +39,7 @@ function ServiceCard({ s, index, onOpen }) {
               </motion.h3>
               <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-mute">{s.blurb}</p>
             </div>
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 transition-all duration-500 group-hover:rotate-45 group-hover:border-signal group-hover:bg-signal group-hover:text-ink">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-fg/15 transition-all duration-500 group-hover:rotate-45 group-hover:border-signal group-hover:bg-signal group-hover:text-night">
               <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none">
                 <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
@@ -68,13 +68,13 @@ function ServiceDialog({ s, onClose }) {
       <motion.div className="absolute inset-0 bg-ink/70 backdrop-blur-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
       <motion.div
         layoutId={`card-${s.id}`}
-        className="relative z-10 grid max-h-[92svh] w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-ink-2 md:grid-cols-2"
+        className="relative z-10 grid max-h-[92svh] w-full max-w-4xl overflow-hidden rounded-3xl border border-fg/10 bg-ink-2 md:grid-cols-2"
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
         role="dialog"
         aria-modal="true"
         aria-label={s.title}
       >
-        <div className="relative h-56 border-b border-white/5 md:h-auto md:border-b-0 md:border-r">
+        <div className="relative h-56 border-b border-fg/5 md:h-auto md:border-b-0 md:border-r">
           <Visual active />
         </div>
         <div className="overflow-y-auto p-6 md:p-9" data-lenis-prevent>
@@ -90,7 +90,7 @@ function ServiceDialog({ s, onClose }) {
                   key={p}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0, transition: { delay: 0.3 + i * 0.06 } }}
-                  className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-sm"
+                  className="flex items-center gap-3 rounded-xl border border-fg/5 bg-fg/[0.02] px-4 py-3 text-sm"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-signal" />
                   {p}
@@ -102,13 +102,13 @@ function ServiceDialog({ s, onClose }) {
                 onClose()
                 setTimeout(() => scrollToId('quote'), 350)
               }}
-              className="mt-7 w-full rounded-full bg-signal py-3.5 text-sm font-medium text-ink transition-colors hover:bg-bone"
+              className="mt-7 w-full rounded-full bg-signal py-3.5 text-sm font-medium text-night transition-colors hover:bg-signal-2"
             >
               Get a quote for {s.title.toLowerCase()}
             </button>
           </motion.div>
         </div>
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-ink/60 backdrop-blur transition-colors hover:bg-white/10">
+        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-fg/15 bg-ink/60 backdrop-blur transition-colors hover:bg-fg/10">
           <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none">
             <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>

@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger, lowPower } from '../lib/motion'
 import Kicker from './ui/Kicker'
+import { useTheme } from '../lib/theme'
 
 // split out (with drei) so it only downloads when the section is close
 const ContainerScene = lazy(() => import('./Container3D'))
@@ -30,6 +31,7 @@ export default function ContainerSection() {
   const [visible, setVisible] = useState(false)
   const [near, setNear] = useState(false)
   const [p, setP] = useState(0)
+  const { theme } = useTheme()
 
   useEffect(() => {
     // mount the WebGL scene ~1.5 screens ahead, render frames only while on screen
@@ -49,11 +51,11 @@ export default function ContainerSection() {
       near && (
         <Canvas shadows={!lowPower} dpr={lowPower ? [1, 1.25] : [1, 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ fov: 30, position: [0, 3, 12] }} gl={{ antialias: !lowPower, powerPreference: 'high-performance' }}>
           <Suspense fallback={null}>
-            <ContainerScene progress={progress} />
+            <ContainerScene progress={progress} theme={theme} />
           </Suspense>
         </Canvas>
       ),
-    [near, visible]
+    [near, visible, theme]
   )
 
   useGSAP(() => {
@@ -78,7 +80,7 @@ export default function ContainerSection() {
         <div className="absolute inset-0">
           {canvas}
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(6,8,15,0.92)_0%,rgba(6,8,15,0.5)_35%,transparent_60%)] max-md:bg-[linear-gradient(180deg,rgba(6,8,15,0.95)_0%,rgba(6,8,15,0.6)_40%,transparent_65%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--ink)_92%,transparent)_0%,color-mix(in_oklab,var(--ink)_50%,transparent)_35%,transparent_60%)] max-md:bg-[linear-gradient(180deg,color-mix(in_oklab,var(--ink)_95%,transparent)_0%,color-mix(in_oklab,var(--ink)_60%,transparent)_40%,transparent_65%)]" />
 
         <div className="relative flex h-full flex-col justify-start px-5 pt-20 md:justify-center md:px-12 md:pt-0">
           <Kicker index="02">Inside the box</Kicker>
@@ -89,7 +91,7 @@ export default function ContainerSection() {
           </h2>
           <ol className="mt-5 max-w-sm space-y-0 md:mt-10 md:space-y-1">
             {steps.map((s, i) => (
-              <li key={s.t} className={`relative border-l py-2 pl-5 md:py-3 transition-all duration-500 ${active === i ? 'border-signal' : 'border-white/10 opacity-40'}`}>
+              <li key={s.t} className={`relative border-l py-2 pl-5 md:py-3 transition-all duration-500 ${active === i ? 'border-signal' : 'border-fg/10 opacity-40'}`}>
                 <div className="flex items-baseline gap-3">
                   <span className="font-mono text-[10px] text-signal">0{i + 1}</span>
                   <span className="text-lg font-medium">{s.t}</span>
@@ -103,7 +105,7 @@ export default function ContainerSection() {
         </div>
 
         {/* telemetry HUD */}
-        <div className="absolute bottom-5 right-4 w-[min(320px,calc(100%-2rem))] rounded-2xl border border-white/10 bg-ink/85 p-4 font-mono text-[11px] md:bottom-10 md:bg-ink/60 md:backdrop-blur-xl md:right-10">
+        <div className="absolute bottom-5 right-4 w-[min(320px,calc(100%-2rem))] rounded-2xl border border-fg/10 bg-ink/85 p-4 font-mono text-[11px] md:bottom-10 md:bg-ink/60 md:backdrop-blur-xl md:right-10">
           <div className="mb-3 flex items-center justify-between uppercase tracking-[0.18em] text-mute">
             <span className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sea" /> Live telemetry
@@ -118,7 +120,7 @@ export default function ContainerSection() {
               </div>
             ))}
           </div>
-          <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-3 h-1 overflow-hidden rounded-full bg-fg/10">
             <div className="h-full rounded-full bg-gradient-to-r from-signal to-signal-2" style={{ width: `${p * 100}%` }} />
           </div>
         </div>

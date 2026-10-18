@@ -26,7 +26,7 @@ export default function Cursor() {
   return (
     <motion.div className="pointer-events-none fixed left-0 top-0 z-[90] mix-blend-normal" style={{ x: sx, y: sy }}>
       <motion.div
-        className="flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-signal font-mono text-[10px] font-medium uppercase tracking-widest text-ink"
+        className="flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-signal font-mono text-[10px] font-medium uppercase tracking-widest text-night"
         animate={{ width: label ? 76 : 8, height: label ? 76 : 8, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       >

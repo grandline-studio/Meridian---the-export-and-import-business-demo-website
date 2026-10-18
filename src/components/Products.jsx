@@ -15,7 +15,7 @@ function FlipCard({ p, i }) {
         {/* front */}
         <button
           onClick={() => setFlipped(true)}
-          className="group absolute inset-0 overflow-hidden rounded-3xl border border-white/10 bg-ink-2 text-left [backface-visibility:hidden]"
+          className="group absolute inset-0 overflow-hidden rounded-3xl border border-fg/10 bg-ink-2 text-left [backface-visibility:hidden]"
           data-cursor="Specs"
           aria-label={`${p.name} — view specs`}
         >
@@ -33,7 +33,7 @@ function FlipCard({ p, i }) {
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
           <div className="absolute inset-0 opacity-0 mix-blend-color transition-opacity duration-700 group-hover:opacity-40" style={{ background: p.tone }} />
           <div className="absolute left-5 right-5 top-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em]">
-            <span className="rounded-full border border-white/20 bg-ink/40 px-2.5 py-1 backdrop-blur">{p.hs}</span>
+            <span className="rounded-full border border-fg/20 bg-ink/40 px-2.5 py-1 backdrop-blur">{p.hs}</span>
             <span className="text-bone/70">{String(i + 1).padStart(2, '0')}/{String(products.length).padStart(2, '0')}</span>
           </div>
           <div className="absolute inset-x-5 bottom-5">
@@ -50,15 +50,15 @@ function FlipCard({ p, i }) {
         </button>
 
         {/* back — spec sheet */}
-        <div className="absolute inset-0 flex flex-col rounded-3xl border border-white/10 bg-ink-3 p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 flex flex-col rounded-3xl border border-fg/10 bg-ink-3 p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">Spec sheet</span>
-            <button onClick={() => setFlipped(false)} className="rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-mute transition-colors hover:text-bone">
+            <button onClick={() => setFlipped(false)} className="rounded-full border border-fg/15 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-mute transition-colors hover:text-bone">
               ← Back
             </button>
           </div>
           <h3 className="mt-6 text-3xl font-medium leading-tight tracking-tight">{p.name}</h3>
-          <dl className="mt-6 divide-y divide-white/5 border-y border-white/5 text-sm">
+          <dl className="mt-6 divide-y divide-fg/5 border-y border-fg/5 text-sm">
             {[
               ['HS code', p.hs],
               ['Origin', p.origin],
@@ -74,10 +74,10 @@ function FlipCard({ p, i }) {
             ))}
           </dl>
           <div className="mt-auto grid grid-cols-2 gap-2 pt-6">
-            <button onClick={() => scrollToId('quote')} className="rounded-full bg-signal py-3 text-sm font-medium text-ink transition-colors hover:bg-bone">
+            <button onClick={() => scrollToId('quote')} className="rounded-full bg-signal py-3 text-sm font-medium text-night transition-colors hover:bg-signal-2">
               Get price
             </button>
-            <button onClick={() => scrollToId('quote')} className="rounded-full border border-white/15 py-3 text-sm transition-colors hover:bg-white/5">
+            <button onClick={() => scrollToId('quote')} className="rounded-full border border-fg/15 py-3 text-sm transition-colors hover:bg-fg/5">
               Request sample
             </button>
           </div>
@@ -142,7 +142,7 @@ export default function Products() {
         {products.map((p, i) => (
           <FlipCard key={p.name} p={p} i={i} />
         ))}
-        <div className="flex h-[460px] w-[70vw] shrink-0 flex-col justify-center rounded-3xl border border-dashed border-white/15 p-8 sm:w-[320px] md:h-[520px]">
+        <div className="flex h-[460px] w-[70vw] shrink-0 flex-col justify-center rounded-3xl border border-dashed border-fg/15 p-8 sm:w-[320px] md:h-[520px]">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">Custom sourcing</div>
           <p className="mt-4 text-2xl font-medium leading-snug tracking-tight">Don't see your product? We source 400+ HS lines on request.</p>
           <button onClick={() => scrollToId('quote')} className="mt-8 self-start rounded-full bg-bone px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-signal">
@@ -150,7 +150,7 @@ export default function Products() {
           </button>
         </div>
       </div>
-      <div className="mx-5 mt-10 h-px bg-white/10 md:mx-12">
+      <div className="mx-5 mt-10 h-px bg-fg/10 md:mx-12">
         <div className="products-progress h-full origin-left scale-x-0 bg-signal" />
       </div>
     </section>

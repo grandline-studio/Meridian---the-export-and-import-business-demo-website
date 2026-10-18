@@ -46,7 +46,7 @@ export default function Preloader({ onDone }) {
           </div>
           <div className="mb-3 font-mono text-xs text-signal">%</div>
         </div>
-        <div className="mt-6 h-px w-64 bg-white/10">
+        <div className="mt-6 h-px w-64 bg-fg/10">
           <div className="pl-bar h-full origin-left scale-x-0 bg-signal" />
         </div>
         <div className="mt-6 font-mono text-[11px] uppercase tracking-[0.25em] text-mute">

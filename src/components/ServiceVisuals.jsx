@@ -18,12 +18,12 @@ export function SeaVisual({ active }) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <div className="absolute left-5 top-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-mute">
-        <span className="rounded border border-white/10 px-1.5 py-0.5 text-sea">MV Meridian Star</span>
+        <span className="rounded border border-fg/10 px-1.5 py-0.5 text-sea">MV Meridian Star</span>
         ETA <span className="tabular-nums text-bone">{String(d).padStart(2, '0')}d {String(h).padStart(2, '0')}h {String(m).padStart(2, '0')}m</span>
       </div>
       {/* dotted route */}
       <svg className="absolute inset-x-0 top-12 h-10 w-full" preserveAspectRatio="none" viewBox="0 0 400 40">
-        <path d="M0 30 C 120 0, 280 0, 400 30" stroke="rgba(255,255,255,0.18)" strokeDasharray="2 6" fill="none" vectorEffect="non-scaling-stroke" />
+        <path d="M0 30 C 120 0, 280 0, 400 30" stroke="var(--fg)" strokeOpacity=".2" strokeDasharray="2 6" fill="none" vectorEffect="non-scaling-stroke" />
       </svg>
       {/* ship */}
       <motion.div
@@ -35,7 +35,7 @@ export function SeaVisual({ active }) {
         {[0, 1, 2].map((k) => (
           <motion.span
             key={k}
-            className="absolute bottom-1 right-[85%] h-[2px] rounded-full bg-white/50"
+            className="absolute bottom-1 right-[85%] h-[2px] rounded-full bg-fg/50"
             animate={active ? { width: [0, 90], x: [0, -120], opacity: [0.8, 0] } : {}}
             transition={{ duration: 2.4, repeat: Infinity, delay: k * 0.8, ease: 'easeOut' }}
             style={{ bottom: 4 + k * 4 }}
@@ -60,7 +60,7 @@ export function SeaVisual({ active }) {
           <div className="marquee-track flex h-full w-[200%]" style={{ '--marquee-speed': `${8 + i * 5}s`, animationPlayState: active ? 'running' : 'paused' }}>
             {[0, 1].map((k) => (
               <svg key={k} viewBox="0 0 400 60" preserveAspectRatio="none" className="h-full w-1/2">
-                <path d="M0 20 Q 25 8 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20 T 350 20 T 400 20 V60 H0 Z" fill={['#0d2a4a', '#0a2140', '#081a33'][i]} />
+                <path d="M0 20 Q 25 8 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20 T 350 20 T 400 20 V60 H0 Z" fill={['var(--wave-1)', 'var(--wave-2)', 'var(--wave-3)'][i]} />
               </svg>
             ))}
           </div>
@@ -76,12 +76,12 @@ export function AirVisual({ active }) {
   return (
     <div className="relative h-full w-full">
       <svg viewBox="0 0 340 190" className="absolute inset-0 h-full w-full">
-        <path d={path} stroke="rgba(255,255,255,0.15)" strokeDasharray="3 6" fill="none" />
+        <path d={path} stroke="var(--fg)" strokeOpacity=".18" strokeDasharray="3 6" fill="none" />
         <motion.path d={path} stroke="url(#airg)" strokeWidth="2" fill="none" initial={{ pathLength: 0 }} animate={active ? { pathLength: [0, 1, 1] } : {}} transition={{ duration: 4, repeat: Infinity, times: [0, 0.8, 1] }} />
         <defs>
           <linearGradient id="airg" x1="0" x2="1">
-            <stop offset="0" stopColor="#46d6c8" stopOpacity="0" />
-            <stop offset="1" stopColor="#46d6c8" />
+            <stop offset="0" stopColor="var(--sea)" stopOpacity="0" />
+            <stop offset="1" stopColor="var(--sea)" />
           </linearGradient>
         </defs>
         {[
@@ -89,17 +89,17 @@ export function AirVisual({ active }) {
           [310, 110, 'FRA'],
         ].map(([x, y, l]) => (
           <g key={l}>
-            <circle cx={x} cy={y} r="4" fill="#46d6c8" />
-            <circle cx={x} cy={y} r="10" fill="none" stroke="#46d6c8" strokeOpacity=".35" />
-            <text x={x} y={y + 24} textAnchor="middle" fontSize="10" fill="#8b91a1" fontFamily="Geist Mono, monospace">
+            <circle cx={x} cy={y} r="4" fill="var(--sea)" />
+            <circle cx={x} cy={y} r="10" fill="none" stroke="var(--sea)" strokeOpacity=".35" />
+            <text x={x} y={y + 24} textAnchor="middle" fontSize="10" fill="var(--mute)" fontFamily="IBM Plex Mono, monospace">
               {l}
             </text>
           </g>
         ))}
         {active && (
           <g>
-            <circle r="9" fill="#46d6c8" opacity=".15" />
-            <path d="M-2 -9 L1 -1 L9 0 L1 1 L-2 9 L-1 2 L-6 2 L-8 5 L-9 5 L-8 0 L-9 -5 L-8 -5 L-6 -2 L-1 -2 Z" fill="#ece8df" />
+            <circle r="9" fill="var(--sea)" opacity=".15" />
+            <path d="M-2 -9 L1 -1 L9 0 L1 1 L-2 9 L-1 2 L-6 2 L-8 5 L-9 5 L-8 0 L-9 -5 L-8 -5 L-6 -2 L-1 -2 Z" fill="var(--bone)" />
             <animateMotion dur="4s" repeatCount="indefinite" rotate="auto" path={path} keyPoints="0;1;1" keyTimes="0;0.8;1" calcMode="linear" />
           </g>
         )}
@@ -122,7 +122,7 @@ export function CustomsVisual({ active }) {
   }, [active])
   return (
     <div className="relative flex h-full w-full items-center justify-center p-5">
-      <div className="relative w-full max-w-[250px] rounded-lg border border-white/10 bg-ink-3/80 p-4 shadow-2xl">
+      <div className="relative w-full max-w-[250px] rounded-lg border border-fg/10 bg-ink-3/80 p-4 shadow-2xl">
         <div className="mb-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-widest text-mute">
           <span>ICEGATE · SB 4821937</span>
           <span className={step >= 5 ? 'text-sea' : 'text-signal-2'}>{step >= 5 ? 'Cleared' : 'Assessing'}</span>
@@ -130,7 +130,7 @@ export function CustomsVisual({ active }) {
         <ul className="space-y-2">
           {items.map((it, i) => (
             <li key={it} className="flex items-center gap-2 text-[12px] text-bone/80">
-              <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all duration-300 ${step > i ? 'border-sea bg-sea text-ink' : 'border-white/20'}`}>
+              <span className={`flex h-4 w-4 items-center justify-center rounded-full border transition-all duration-300 ${step > i ? 'border-sea bg-sea text-night' : 'border-fg/20'}`}>
                 {step > i && (
                   <svg viewBox="0 0 12 12" className="h-2.5 w-2.5">
                     <path d="M2.5 6.5l2 2 5-5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
@@ -169,8 +169,8 @@ export function SourcingVisual({ active }) {
           const done = scan > i
           const flag = i === 4
           return (
-            <div key={i} className={`relative h-12 w-12 overflow-hidden rounded-md border transition-colors duration-300 ${done ? (flag ? 'border-signal/70 bg-signal/10' : 'border-sea/60 bg-sea/10') : 'border-white/10 bg-white/[0.03]'}`}>
-              <div className="absolute inset-2 rounded-sm bg-gradient-to-br from-white/15 to-white/0" />
+            <div key={i} className={`relative h-12 w-12 overflow-hidden rounded-md border transition-colors duration-300 ${done ? (flag ? 'border-signal/70 bg-signal/10' : 'border-sea/60 bg-sea/10') : 'border-fg/10 bg-fg/[0.03]'}`}>
+              <div className="absolute inset-2 rounded-sm bg-gradient-to-br from-fg/15 to-fg/0" />
               {done && <span className={`absolute bottom-0.5 right-1 font-mono text-[8px] ${flag ? 'text-signal' : 'text-sea'}`}>{flag ? 'RE' : 'OK'}</span>}
               {scan === i + 1 && <div className="absolute inset-0 rounded-md border-2 border-bone" />}
             </div>
@@ -200,7 +200,7 @@ export function WarehouseVisual({ active }) {
     <div ref={ref} className="relative h-full w-full overflow-hidden">
       <div className="absolute left-1/2 top-[66%]" style={{ perspective: 900 }}>
         <div style={{ transformStyle: 'preserve-3d', transform: 'rotateX(58deg) rotateZ(-40deg)' }}>
-          <div className="absolute -left-36 -top-24 h-48 w-72 rounded-lg border border-white/10 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px]" />
+          <div className="absolute -left-36 -top-24 h-48 w-72 rounded-lg border border-fg/10 bg-[linear-gradient(color-mix(in_oklab,var(--fg)_7%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_oklab,var(--fg)_7%,transparent)_1px,transparent_1px)] bg-[size:24px_24px]" />
           {boxes.map((b, i) => (
             <motion.div
               key={i}

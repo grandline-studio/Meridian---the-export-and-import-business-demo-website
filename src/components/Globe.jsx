@@ -11,6 +11,12 @@ export function ll2v(lat, lng, r = 1) {
   return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(th), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(th))
 }
 
+// glow tricks (additive light) vanish on a pale page, so light mode swaps blending + colours
+const PAL = {
+  dark: { land: '#8fa3c7', hot: '#ff7a3a', scan: '#8cd9ff', base: '#070b17', rim: '#2b4f8f', atmo: '#2f5fd0', atmoGain: 0.9, arcA: '#46d6c8', arcB: '#ff8a4a', ship: '#fff3e6', pin: '#ffffff', stars: true, additive: true },
+  light: { land: '#3d4a63', hot: '#e4561b', scan: '#1d4ed8', base: '#fbfaf7', rim: '#b9cbe6', atmo: '#7d9fd8', atmoGain: 0.38, arcA: '#0e9384', arcB: '#e4561b', ship: '#15171d', pin: '#15171d', stars: false, additive: false },
+}
+
 const ORIGIN_V = ll2v(origin.lat, origin.lng)
 // rotation that brings the origin port to face the camera
 const FACE_Y = -Math.atan2(ORIGIN_V.x, ORIGIN_V.z)
@@ -20,7 +26,7 @@ const FACE_X = origin.lat * DEG
 // fetched (in parallel with the JS) rather than bundled: ~140 KB less script to parse
 const landPromise = fetch('/land.json').then((r) => r.json())
 
-function LandDots() {
+function LandDots({ theme }) {
   const [land, setLand] = useState(null)
   useEffect(() => {
     landPromise.then(setLand).catch(() => {})
@@ -58,6 +64,7 @@ function LandDots() {
           uPR: { value: Math.min(window.devicePixelRatio, 2) },
           uCol: { value: new THREE.Color('#8fa3c7') },
           uHot: { value: new THREE.Color('#ff7a3a') },
+          uScanCol: { value: new THREE.Color('#8cd9ff') },
           uScan: { value: -2 },
         },
         vertexShader: /* glsl */ `
@@ -73,7 +80,7 @@ function LandDots() {
             gl_PointSize = uSize * uPR * (1.0 / -mv.z) * (0.85 + 0.6 * aHot);
           }`,
         fragmentShader: /* glsl */ `
-          uniform float uTime; uniform vec3 uCol; uniform vec3 uHot; uniform float uScan;
+          uniform float uTime; uniform vec3 uCol; uniform vec3 uHot; uniform vec3 uScanCol; uniform float uScan;
           varying float vFacing; varying float vRand; varying float vHot; varying float vY;
           void main(){
             float d = length(gl_PointCoord - 0.5);
@@ -82,12 +89,18 @@ function LandDots() {
             float tw = 0.7 + 0.3 * sin(uTime * 1.3 + vRand * 40.0);
             float face = smoothstep(-0.05, 0.55, vFacing);
             float scan = exp(-pow((vY - uScan) * 9.0, 2.0)) * 0.9;
-            vec3 col = mix(uCol, uHot, vHot) + vec3(0.55, 0.85, 1.0) * scan * (1.0 - vHot);
+            vec3 col = mix(mix(uCol, uHot, vHot), uScanCol, scan * 0.8 * (1.0 - vHot));
             gl_FragColor = vec4(col, a * face * tw * (0.5 + 0.5 * vHot + scan * 0.5));
           }`,
       }),
     []
   )
+  useEffect(() => {
+    const c = PAL[theme]
+    mat.uniforms.uCol.value.set(c.land)
+    mat.uniforms.uHot.value.set(c.hot)
+    mat.uniforms.uScanCol.value.set(c.scan)
+  }, [theme, mat])
   useFrame((s) => {
     mat.uniforms.uTime.value = s.clock.elapsedTime
     mat.uniforms.uScan.value = ((s.clock.elapsedTime * 0.35) % 3.5) - 1.5
@@ -96,7 +109,7 @@ function LandDots() {
 }
 
 /* ---------- body + atmosphere ---------- */
-function Body() {
+function Body({ theme }) {
   const [core, atmo] = useMemo(
     () => [
       new THREE.ShaderMaterial({
@@ -109,13 +122,23 @@ function Body() {
         depthWrite: false,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
-        uniforms: { uC: { value: new THREE.Color('#2f5fd0') } },
         vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-        fragmentShader: `uniform vec3 uC; varying vec3 vN; void main(){ float i = pow(0.6 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(uC, 1.0) * i * 0.9; }`,
+        uniforms: { uC: { value: new THREE.Color('#2f5fd0') }, uGain: { value: 0.9 }, uAdd: { value: 1 } },
+        fragmentShader: `uniform vec3 uC; uniform float uGain; uniform float uAdd; varying vec3 vN; void main(){ float i = pow(0.6 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(uC * mix(1.0, i * uGain, uAdd), clamp(i * uGain, 0.0, 1.0)); }`,
       }),
     ],
     []
   )
+  useEffect(() => {
+    const c = PAL[theme]
+    core.uniforms.uBase.value.set(c.base)
+    core.uniforms.uRim.value.set(c.rim)
+    atmo.uniforms.uC.value.set(c.atmo)
+    atmo.uniforms.uGain.value = c.atmoGain
+    atmo.uniforms.uAdd.value = c.additive ? 1 : 0
+    atmo.blending = c.additive ? THREE.AdditiveBlending : THREE.NormalBlending
+    atmo.needsUpdate = true
+  }, [theme, core, atmo])
   return (
     <>
       <mesh material={core}>
@@ -144,7 +167,7 @@ const arcFrag = `
     gl_FragColor = vec4(uColor * (1.0 + comet * 1.6 + tip * 2.0), a);
   }`
 
-function Routes({ progress, labels }) {
+function Routes({ progress, labels, theme }) {
   const arcs = useMemo(
     () =>
       destinations.map((d, i) => {
@@ -178,6 +201,17 @@ function Routes({ progress, labels }) {
   )
   const ships = useRef([])
   const rings = useRef([])
+  const pins = useRef([])
+  useEffect(() => {
+    const c = PAL[theme]
+    arcs.forEach((arc, i) => {
+      arc.color.set(i % 3 === 0 ? c.arcA : c.arcB)
+      arc.mat.blending = c.additive ? THREE.AdditiveBlending : THREE.NormalBlending
+      arc.mat.needsUpdate = true
+      ships.current[i]?.material.color.set(c.ship)
+      pins.current[i]?.material.color.set(c.pin)
+    })
+  }, [theme, arcs])
   const root = useRef()
   const start = useRef(null)
   const [tmp, center, camDir] = useMemo(() => [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], [])
@@ -242,7 +276,7 @@ function Routes({ progress, labels }) {
               <ringGeometry args={[0.012, 0.016, 40]} />
               <meshBasicMaterial color={arc.color} transparent opacity={0} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} />
             </mesh>
-            <mesh>
+            <mesh ref={(m) => (pins.current[i] = m)}>
               <circleGeometry args={[0.006, 20]} />
               <meshBasicMaterial color="#ffffff" toneMapped={false} />
             </mesh>
@@ -302,7 +336,7 @@ function Stars() {
 }
 
 /* ---------- scene orchestrated by scroll progress ---------- */
-export default function GlobeScene({ progress, labels }) {
+export default function GlobeScene({ progress, labels, theme = 'dark' }) {
   const outer = useRef()
   const inner = useRef()
   const { size, camera, pointer } = useThree()
@@ -339,12 +373,12 @@ export default function GlobeScene({ progress, labels }) {
 
   return (
     <>
-      <Stars />
+      {PAL[theme].stars && <Stars />}
       <group ref={outer}>
         <group ref={inner}>
-          <Body />
-          <LandDots />
-          <Routes progress={smoothP} labels={labels} />
+          <Body theme={theme} />
+          <LandDots theme={theme} />
+          <Routes progress={smoothP} labels={labels} theme={theme} />
         </group>
       </group>
     </>
