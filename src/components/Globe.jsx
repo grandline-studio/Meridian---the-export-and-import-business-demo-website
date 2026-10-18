@@ -368,6 +368,7 @@ export default function GlobeScene({ progress, labels, theme = 'dark', onSpin })
     const up = () => {
       if (!s.dragging) return
       s.dragging = false
+      document.body.style.userSelect = ''
       el.style.cursor = s.hover ? 'grab' : ''
     }
     window.addEventListener('pointermove', move, { passive: true })
@@ -388,7 +389,7 @@ export default function GlobeScene({ progress, labels, theme = 'dark', onSpin })
       s.py = e.nativeEvent.clientY
       s.vy = s.vx = 0
       gl.domElement.style.cursor = 'grabbing'
-      if (e.nativeEvent.pointerType === 'mouse') e.nativeEvent.preventDefault() // no text selection while dragging
+      document.body.style.userSelect = 'none' // R3F listeners are passive, so block selection with CSS instead
     },
     onPointerOver: () => {
       spin.current.hover = true
