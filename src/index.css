@@ -127,6 +127,7 @@ body {
 @keyframes marquee { to { transform: translateX(-50%); } }
 .marquee-track { animation: marquee var(--marquee-speed, 40s) linear infinite; }
 
+@keyframes spin-hint { 0%, 100% { transform: rotate(-25deg); } 50% { transform: rotate(25deg); } }
 @keyframes float-y { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -1,8 +1,8 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useGSAP } from '@gsap/react'
 import GlobeScene from './Globe'
-import { gsap, ScrollTrigger, scrollToId, lowPower } from '../lib/motion'
+import { gsap, ScrollTrigger, scrollToId, lowPower, isTouch } from '../lib/motion'
 import { heroStats, destinations, origin, brand } from '../config'
 import Magnetic from './ui/Magnetic'
 import { useTheme } from '../lib/theme'
@@ -21,6 +21,8 @@ export default function Hero({ ready }) {
   const labels = useRef([])
   const { theme } = useTheme()
   const [visible, setVisible] = useState(true)
+  const [spun, setSpun] = useState(false)
+  const onSpin = useCallback(() => setSpun(true), [])
 
   // stop rendering the globe once the hero is off-screen
   useEffect(() => {
@@ -86,10 +88,10 @@ export default function Hero({ ready }) {
       <div className="sticky top-0 h-svh w-full overflow-hidden">
         {/* backdrop glow */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_45%,rgba(63,124,255,0.18),transparent_70%),radial-gradient(40%_40%_at_20%_80%,rgba(255,107,44,0.10),transparent_70%)]" />
-        <div className="hero-canvas absolute inset-0">
+        <div className="hero-canvas absolute inset-0 touch-pan-y select-none">
           <Canvas frameloop={visible ? 'always' : 'never'} dpr={lowPower ? [1, 1.5] : [1, 2]} camera={{ fov: 40, position: [0, 0, 3.3], near: 0.1, far: 60 }} gl={{ antialias: !lowPower, alpha: true, powerPreference: 'high-performance' }}>
             <Suspense fallback={null}>
-              <GlobeScene progress={progress} labels={labels} theme={theme} />
+              <GlobeScene progress={progress} labels={labels} theme={theme} onSpin={onSpin} />
             </Suspense>
           </Canvas>
         </div>
@@ -107,7 +109,7 @@ export default function Hero({ ready }) {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--ink)_88%,transparent)_0%,color-mix(in_oklab,var(--ink)_40%,transparent)_45%,transparent_70%)] max-md:bg-[linear-gradient(180deg,color-mix(in_oklab,var(--ink)_90%,transparent)_0%,color-mix(in_oklab,var(--ink)_40%,transparent)_45%,transparent_70%)]" />
 
         {/* Phase A — headline */}
-        <div className="hero-a absolute inset-0 flex flex-col justify-start px-5 pt-28 md:justify-center md:px-12 md:pt-0">
+        <div className="hero-a pointer-events-none absolute inset-0 flex flex-col justify-start px-5 pt-28 md:justify-center md:px-12 md:pt-0">
           <div className="hero-fade mb-6 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-mute">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
@@ -129,7 +131,7 @@ export default function Hero({ ready }) {
           <p className="hero-fade mt-7 max-w-md text-[15px] leading-relaxed text-mute md:text-base">
             Sourcing, customs, freight and finance — one accountable desk taking your cargo from Indian farms and factories to 120+ ports, with every container tracked live.
           </p>
-          <div className="hero-fade mt-9 flex flex-wrap items-center gap-3">
+          <div className="hero-fade pointer-events-auto mt-9 flex flex-wrap items-center gap-3">
             <Magnetic>
               <button onClick={() => scrollToId('quote')} className="group relative overflow-hidden rounded-full bg-signal px-7 py-4 text-sm font-medium text-night">
                 <span className="relative z-10 flex items-center gap-2">
@@ -143,10 +145,22 @@ export default function Hero({ ready }) {
               Explore services
             </button>
           </div>
+
+          {/* tells visitors the globe can be grabbed; goes away after their first spin */}
+          {/* outer div is animated in by GSAP (inline opacity), inner one fades out on first spin */}
+          <div className="hero-fade absolute bottom-24 left-1/2 -translate-x-1/2 md:bottom-28 md:left-auto md:right-[14%] md:translate-x-0" aria-hidden>
+            <div className={`flex items-center gap-2.5 whitespace-nowrap rounded-full border border-fg/15 bg-ink/70 px-3.5 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-bone transition-all duration-700 md:backdrop-blur-md ${spun ? 'translate-y-2 opacity-0' : 'opacity-100'}`}>
+              <svg viewBox="0 0 24 24" className="h-4 w-4 animate-[spin-hint_2.6s_ease-in-out_infinite] text-signal" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 0 1 15.5-6.2M21 12a9 9 0 0 1-15.5 6.2" />
+                <path d="M18.5 2.5v3.3h-3.3M5.5 21.5v-3.3h3.3" />
+              </svg>
+              {isTouch ? 'Swipe sideways to spin' : 'Drag to spin the globe'}
+            </div>
+          </div>
         </div>
 
         {/* Phase B — routes */}
-        <div className="hero-b invisible absolute left-5 top-1/2 max-w-sm -translate-y-1/2 md:left-12">
+        <div className="hero-b pointer-events-none invisible absolute left-5 top-1/2 max-w-sm -translate-y-1/2 md:left-12">
           <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-signal">Live trade lanes</div>
           <h2 className="mt-4 text-4xl font-medium leading-[1.02] tracking-tight md:text-6xl">
             One desk.
@@ -166,7 +180,7 @@ export default function Hero({ ready }) {
         </div>
 
         {/* Phase C — stats */}
-        <div className="hero-c invisible absolute inset-x-0 bottom-16 px-5 md:bottom-20 md:px-12" style={{ perspective: 900 }}>
+        <div className="hero-c pointer-events-none invisible absolute inset-x-0 bottom-16 px-5 md:bottom-20 md:px-12" style={{ perspective: 900 }}>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {heroStats.map((s, i) => (
               <div key={s.label} className="stat rounded-2xl border border-fg/10 bg-ink/80 p-4 md:bg-ink/50 md:p-6 md:backdrop-blur-xl">

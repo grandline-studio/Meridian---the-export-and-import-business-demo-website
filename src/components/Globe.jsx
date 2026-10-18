@@ -336,28 +336,114 @@ function Stars() {
 }
 
 /* ---------- scene orchestrated by scroll progress ---------- */
-export default function GlobeScene({ progress, labels, theme = 'dark' }) {
+export default function GlobeScene({ progress, labels, theme = 'dark', onSpin }) {
   const outer = useRef()
   const inner = useRef()
-  const { size, camera, pointer } = useThree()
+  const { size, camera, pointer, gl } = useThree()
   const mobile = size.width < 768
   const smoothP = useRef(0)
   const mouse = useRef({ x: 0, y: 0 })
+  // drag-to-spin state: y/x are the user's extra rotation on top of the scroll choreography
+  const spin = useRef({ y: 0, x: 0, vy: 0, vx: 0, ay: 0, ax: 0, dragging: false, hover: false, px: 0, py: 0, travel: 0, told: false })
 
-  useFrame((s, dt) => {
+  useEffect(() => {
+    const s = spin.current
+    const el = gl.domElement
+    const move = (e) => {
+      if (!s.dragging) return
+      const dx = e.clientX - s.px
+      const dy = e.clientY - s.py
+      s.px = e.clientX
+      s.py = e.clientY
+      const k = 3.4 / Math.min(window.innerWidth, window.innerHeight)
+      s.ay += dx * k
+      // touch only spins sideways — vertical swipes belong to page scrolling
+      if (e.pointerType !== 'touch') s.ax += dy * k
+      s.travel += Math.abs(dx) + Math.abs(dy)
+      if (!s.told && s.travel > 40) {
+        s.told = true
+        onSpin?.()
+      }
+    }
+    const up = () => {
+      if (!s.dragging) return
+      s.dragging = false
+      el.style.cursor = s.hover ? 'grab' : ''
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', up)
+    }
+  }, [gl, onSpin])
+
+  const grab = {
+    onPointerDown: (e) => {
+      const s = spin.current
+      s.dragging = true
+      s.px = e.nativeEvent.clientX
+      s.py = e.nativeEvent.clientY
+      s.vy = s.vx = 0
+      gl.domElement.style.cursor = 'grabbing'
+      if (e.nativeEvent.pointerType === 'mouse') e.nativeEvent.preventDefault() // no text selection while dragging
+    },
+    onPointerOver: () => {
+      spin.current.hover = true
+      if (!spin.current.dragging) gl.domElement.style.cursor = 'grab'
+      gl.domElement.dataset.cursor = 'Spin'
+    },
+    onPointerOut: () => {
+      spin.current.hover = false
+      if (!spin.current.dragging) gl.domElement.style.cursor = ''
+      delete gl.domElement.dataset.cursor
+    },
+  }
+
+  useFrame((st, dt) => {
     // damp scroll for buttery motion
     smoothP.current = THREE.MathUtils.damp(smoothP.current, progress.current, 6, dt)
     const p = smoothP.current
-    mouse.current.x = THREE.MathUtils.damp(mouse.current.x, pointer.x, 3, dt)
-    mouse.current.y = THREE.MathUtils.damp(mouse.current.y, pointer.y, 3, dt)
+    const s = spin.current
+    if (!s.dragging) {
+      mouse.current.x = THREE.MathUtils.damp(mouse.current.x, pointer.x, 3, dt)
+      mouse.current.y = THREE.MathUtils.damp(mouse.current.y, pointer.y, 3, dt)
+    }
+
+    // drag + momentum
+    const step = Math.max(dt, 1 / 240)
+    if (s.dragging) {
+      s.y += s.ay
+      s.x += s.ax
+      s.vy = THREE.MathUtils.damp(s.vy, s.ay / step, 18, dt)
+      s.vx = THREE.MathUtils.damp(s.vx, s.ax / step, 18, dt)
+      s.ay = s.ax = 0
+    } else {
+      s.y += s.vy * dt
+      s.x += s.vx * dt
+      s.vy *= Math.exp(-1.6 * dt)
+      s.vx *= Math.exp(-4 * dt)
+      // once the visitor scrolls, ease back so the story still lands on India
+      if (p > 0.03) {
+        const home = Math.round(s.y / (Math.PI * 2)) * Math.PI * 2
+        s.y = THREE.MathUtils.damp(s.y, home, 2.5, dt)
+        s.vy *= Math.exp(-6 * dt)
+        s.x = THREE.MathUtils.damp(s.x, 0, 2.5, dt)
+      } else {
+        s.x = THREE.MathUtils.damp(s.x, 0, 0.8, dt) // tilt slowly settles back upright
+      }
+    }
+    s.x = clamp(s.x, -0.75, 0.75)
 
     const tIn = smooth(range(p, 0.02, 0.38))
     const tPan = smooth(range(p, 0.42, 0.82))
     const tOut = smooth(range(p, 0.84, 1))
-    const idle = Math.sin(s.clock.elapsedTime * 0.12) * 0.12
+    const idle = Math.sin(st.clock.elapsedTime * 0.12) * 0.12
 
-    inner.current.rotation.y = FACE_Y + lerp(0.5 + idle, 0, tIn) + tPan * 0.6 + mouse.current.x * 0.18
-    outer.current.rotation.x = lerp(0.32, FACE_X * 0.7, tIn) + tPan * 0.12 - mouse.current.y * 0.1
+    inner.current.rotation.y = FACE_Y + lerp(0.5 + idle, 0, tIn) + tPan * 0.6 + mouse.current.x * 0.18 + s.y
+    outer.current.rotation.x = lerp(0.32, FACE_X * 0.7, tIn) + tPan * 0.12 - mouse.current.y * 0.1 + s.x
     outer.current.rotation.z = lerp(-0.18, 0, tIn)
 
     const x0 = mobile ? 0 : 0.85
@@ -375,6 +461,11 @@ export default function GlobeScene({ progress, labels, theme = 'dark' }) {
     <>
       {PAL[theme].stars && <Stars />}
       <group ref={outer}>
+        {/* invisible grab handle, a little larger than the globe so the rim is easy to catch */}
+        <mesh {...grab}>
+          <sphereGeometry args={[1.12, 32, 32]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
+        </mesh>
         <group ref={inner}>
           <Body theme={theme} />
           <LandDots theme={theme} />
